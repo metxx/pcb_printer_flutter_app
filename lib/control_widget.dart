@@ -5,7 +5,6 @@ import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class ControlWidget extends StatefulWidget {
   @override
@@ -27,7 +26,7 @@ class _ControlWidget extends State<ControlWidget> {
 
   void get() async {
     var response = await http.get(
-      Uri.parse("http://127.0.0.1:8000/files_on_server"),
+      Uri.parse("${globalvar.server_ip}/files_on_server"),
     );
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
@@ -157,6 +156,17 @@ class _ControlWidget extends State<ControlWidget> {
       ),
     );
 
+    Widget switchPhotoresist = SwitchListTile(
+      title: const Text('Positive fotoresist'),
+      value: globalvar.positive_fotoresist,
+      onChanged: (bool value) {
+        setState(() {
+          globalvar.positive_fotoresist = value;
+        });
+      },
+      secondary: const Icon(Icons.invert_colors),
+    );
+
     Widget precisionSlider = Card(
         shadowColor: Theme.of(context).shadowColor,
         elevation: 4,
@@ -224,6 +234,9 @@ class _ControlWidget extends State<ControlWidget> {
       child: loading
           ? const CircularProgressIndicator()
           : DropdownButton<String>(
+              icon: const Icon(Icons.arrow_drop_down_sharp),
+              isExpanded: true,
+              alignment: AlignmentDirectional.center,
               hint: const Text('Select layer'),
               value: globalvar.selected_layer,
               items: leaveRequest.map((item) {
@@ -234,11 +247,12 @@ class _ControlWidget extends State<ControlWidget> {
               }).toList(),
               onChanged: (val) {
                 setState(() {
-                  //value = val;
                   globalvar.selected_layer = val;
                   imageUrl = Uri.parse(
                       "${globalvar.server_ip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
                 });
+                globalvar.doPostRender(
+                    "/render", "0", "0", "True", "True", val.toString());
               },
             ),
     );
@@ -265,7 +279,8 @@ class _ControlWidget extends State<ControlWidget> {
         choose_layer,
         //bottomSheet,
         controlSection,
-        precisionSlider,
+        switchPhotoresist,
+        //precisionSlider,
         clearuploadButton,
       ],
     );

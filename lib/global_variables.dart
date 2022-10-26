@@ -8,6 +8,7 @@ int scale = 1;
 bool is_positive = false;
 bool is_mirror = false;
 String? selected_layer;
+bool positive_fotoresist = false;
 
 Future<http.Response> doPostJason(
     String path,
@@ -30,6 +31,23 @@ Future<http.Response> doPostJason(
       'mirror': mirror,
       'exp_time': exptime,
       'pwm': pwm,
+      'file_name': filename
+    }),
+  );
+}
+
+Future<http.Response> doPostRender(String path, String movex, String movey,
+    String positive, String mirror, String filename) {
+  return http.post(
+    Uri.parse(server_ip + path),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'move_x': movex,
+      'move_y': movey,
+      'positive': positive,
+      'mirror': mirror,
       'file_name': filename
     }),
   );
