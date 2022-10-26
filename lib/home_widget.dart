@@ -14,7 +14,7 @@ class _HomeState extends State<Home> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     ControlWidget(),
-    PrintWidget(),
+    // PrintWidget(),
     SettingsWidget()
   ];
 
@@ -28,19 +28,24 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
-        items: [
+        items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.api_rounded, color: Colors.red,),
+            icon: Icon(
+              Icons.api_rounded,
+              color: Colors.red,
+            ),
             label: 'Control',
           ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.print_rounded,color: Colors.deepOrange,),
+          //   label: 'Print',
+          // ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.print_rounded,color: Colors.deepOrange,),
-            label: 'Print',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_accessibility_rounded, color: Colors.green,),
-            label: 'Settings'
-          )
+              icon: Icon(
+                Icons.settings_accessibility_rounded,
+                color: Colors.green,
+              ),
+              label: 'Settings')
         ],
       ),
     );
@@ -49,6 +54,6 @@ class _HomeState extends State<Home> {
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
-    }); 
+    });
   }
 }
