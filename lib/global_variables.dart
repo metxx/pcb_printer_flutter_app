@@ -7,17 +7,7 @@ String server_ip = 'http://127.0.0.1:8000';
 int scale = 1;
 bool is_positive = false;
 bool is_mirror = false;
-
-String dropdownvalue = 'Item 1';
-
-// List of items in our dropdown menu
-List<String> items = [
-  'Item 1',
-  'Item 2',
-  'Item 3',
-  'Item 4',
-  'Item 5',
-];
+String? selected_layer;
 
 Future<http.Response> doPostJason(
     String path,
@@ -57,8 +47,8 @@ void doPostFile(String path, var file) async {
   var streamedResponse = await request.send();
   var response = await http.Response.fromStream(streamedResponse);
   print(response.body);
-  items = List<String>.from(jsonDecode(response.body));
-  print(items);
+  // items = List<String>.from(jsonDecode(response.body));
+  // print(items);
 
   //print(response.headers);
 }

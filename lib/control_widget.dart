@@ -5,11 +5,7 @@ import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
-
-class FoodCourt {
-  final String name;
-  FoodCourt(this.name);
-}
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ControlWidget extends StatefulWidget {
   @override
@@ -22,14 +18,51 @@ class _ControlWidget extends State<ControlWidget> {
   double _currentSliderValue = 20;
 
   var picked;
+  //String? value;
+  bool loading = true;
+  List<ApiResponse> leaveRequest = [];
+
+  static Uri imageUrl = Uri.parse(
+      "${globalvar.server_ip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+
+  void get() async {
+    var response = await http.get(
+      Uri.parse("http://127.0.0.1:8000/files_on_server"),
+    );
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      List<dynamic> data = jsonData["responseObj"];
+      for (dynamic d in data) {
+        leaveRequest.add(ApiResponse.fromJson(d));
+      }
+      setState(() {
+        loading = false;
+      });
+    } else {
+      throw Exception();
+    }
+  }
+
+  @override
+  void initState() {
+    get();
+    super.initState();
+  }
 
   void _pickFile() async {
+    setState(() {
+      loading = true;
+      globalvar.selected_layer = null;
+    });
     picked = await FilePicker.platform
         .pickFiles(allowMultiple: false, withData: true);
 
     if (picked != null) {
       print(picked.files.first.name);
       globalvar.doPostFile('/uploadfile', picked.files.first.path);
+      setState(() {
+        loading = false;
+      });
     }
   }
 
@@ -57,19 +90,19 @@ class _ControlWidget extends State<ControlWidget> {
     return value;
   }
 
-  void _show(BuildContext ctx) {
-    showModalBottomSheet(
-        elevation: 10,
-        backgroundColor: Colors.amber,
-        context: ctx,
-        builder: (ctx) => Container(
-              width: 300,
-              height: 250,
-              color: Colors.white54,
-              alignment: Alignment.center,
-              child: const Text('Breathe in... Breathe out...'),
-            ));
-  }
+  // void _show(BuildContext ctx) {
+  //   showModalBottomSheet(
+  //       elevation: 10,
+  //       backgroundColor: Colors.amber,
+  //       context: ctx,
+  //       builder: (ctx) => Container(
+  //             width: 300,
+  //             height: 250,
+  //             color: Colors.white54,
+  //             alignment: Alignment.center,
+  //             child: const Text('Breathe in... Breathe out...'),
+  //           ));
+  // }
 
   @override
   Widget build(BuildContext musimetoopravit) {
@@ -181,61 +214,33 @@ class _ControlWidget extends State<ControlWidget> {
     Widget preview_window = Card(
         shadowColor: Theme.of(context).shadowColor,
         elevation: 4,
-        child: Image.file(
-          File('/home/met_xx/Code/pcb-tools-met_xx/to_display.png'),
-        ));
-
-    // Widget choose_layer = Card(
-    //   shadowColor: Theme.of(context).shadowColor,
-    //   elevation: 4,
-    //   child: DropdownButton(
-    //     // Initial Value
-    //     value: globalvar.dropdownvalue,
-
-    //     // Down Arrow Icon
-    //     icon: const Icon(Icons.keyboard_arrow_down),
-
-    //     hint: Text('no layer loaded'),
-
-    //     // Array list of items
-    //     items: globalvar.items.map((String items) {
-    //       return DropdownMenuItem(
-    //         value: items,
-    //         child: Text(items),
-    //       );
-    //     }).toList(),
-    //     // After selecting the desired option,it will
-    //     // change button value to selected value
-    //     onChanged: (String? newValue) {
-    //       setState(() {
-    //         globalvar.dropdownvalue = newValue!;
-    //       });
-    //     },
-    //   ),
-    // );
+        child: loading
+            ? const CircularProgressIndicator()
+            : Image.network(imageUrl.toString()));
 
     Widget choose_layer = Card(
       shadowColor: Theme.of(context).shadowColor,
       elevation: 4,
-      child: FutureBuilder<List<FoodCourt>>(
-          future: _getFoodCourt(),
-          builder: (context, snapshot) {
-            var selectedFc;
-            return DropdownButton<String>(
-                hint: Text("Select"),
-                value: selectedFc,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedFc = newValue;
-                  });
-                },
-                items: snapshot.data
-                    ?.map((fc) => DropdownMenuItem<String>(
-                          value: fc.name,
-                          child: Text(fc.name),
-                        ))
-                    .toList());
-          }),
+      child: loading
+          ? const CircularProgressIndicator()
+          : DropdownButton<String>(
+              hint: const Text('Select layer'),
+              value: globalvar.selected_layer,
+              items: leaveRequest.map((item) {
+                return DropdownMenuItem(
+                  value: item.value,
+                  child: Text(item.value),
+                );
+              }).toList(),
+              onChanged: (val) {
+                setState(() {
+                  //value = val;
+                  globalvar.selected_layer = val;
+                  imageUrl = Uri.parse(
+                      "${globalvar.server_ip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+                });
+              },
+            ),
     );
 
     // Widget bottomSheet = Card(
@@ -286,6 +291,26 @@ class _ControlWidget extends State<ControlWidget> {
   }
 }
 
+class ApiResponse {
+  ApiResponse({
+    required this.key,
+    required this.value,
+  });
+
+  int key;
+  String value;
+
+  factory ApiResponse.fromJson(Map<String, dynamic> json) => ApiResponse(
+        key: json["Key"],
+        value: json["Value"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "Key": key,
+        "Value": value,
+      };
+}
+
 void doPostparam(var path, var params) async {
   var url = Uri.http(globalvar.server_ip, '/' + path, params);
   try {
@@ -297,32 +322,4 @@ void doPostparam(var path, var params) async {
     print(e);
     print('URL: $url'); // prompt error to user
   }
-}
-
-// void doPostfile(var file) async {
-//   var url = Uri.parse('http://127.0.0.1:8000/uploadfile');
-//   try {
-//     var response = await http.post(url, body: file);
-//     print('Response status: ${response.statusCode}');
-//     print('Response body: ${response.body}');
-//     print('$url');
-//   } catch (e) {
-//     print(e);
-//     print('URL: $url'); // prompt error to user
-//   }
-// }
-
-Future<List<FoodCourt>> _getFoodCourt() async {
-  var data =
-      await http.get(Uri.parse(globalvar.server_ip + "/files_on_server"));
-  var jsonData = json.decode(data.body);
-
-  List<FoodCourt> fcs = [];
-
-  for (var u in jsonData) {
-    FoodCourt fc = FoodCourt(u["name"]);
-    fcs.add(fc);
-  }
-  print(fcs);
-  return fcs;
 }

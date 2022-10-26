@@ -78,7 +78,7 @@ class _PrintWidget extends State<PrintWidget> {
                 ),
                 onPressed: () {
                   globalvar.doPostJason("/print", "0", "0", "false", "false",
-                      "5000", "0", "copper.GTL");
+                      "5000", "0", globalvar.selected_layer.toString());
                   //globalvar.doPost('/destroy');
                 }),
           ],
