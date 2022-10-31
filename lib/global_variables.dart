@@ -36,20 +36,15 @@ Future<http.Response> doPostJason(
   );
 }
 
-Future<http.Response> doPostRender(String path, String movex, String movey,
-    String positive, String mirror, String filename) {
+Future<http.Response> doPostRender(
+    String path, String positive, String filename) {
   return http.post(
     Uri.parse(server_ip + path),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{
-      'move_x': movex,
-      'move_y': movey,
-      'positive': positive,
-      'mirror': mirror,
-      'file_name': filename
-    }),
+    body: jsonEncode(
+        <String, String>{'positive': positive, 'file_name': filename}),
   );
 }
 

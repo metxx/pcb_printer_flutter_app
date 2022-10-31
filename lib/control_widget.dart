@@ -17,6 +17,7 @@ class _ControlWidget extends State<ControlWidget> {
   double _currentSliderValue = 20;
 
   var picked;
+
   //String? value;
   bool loading = true;
   List<ApiResponse> leaveRequest = [];
@@ -36,6 +37,7 @@ class _ControlWidget extends State<ControlWidget> {
       }
       setState(() {
         loading = false;
+        globalvar.selected_layer = null;
       });
     } else {
       throw Exception();
@@ -62,6 +64,7 @@ class _ControlWidget extends State<ControlWidget> {
       setState(() {
         loading = false;
       });
+      initState();
     }
   }
 
@@ -251,8 +254,8 @@ class _ControlWidget extends State<ControlWidget> {
                   imageUrl = Uri.parse(
                       "${globalvar.server_ip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
                 });
-                globalvar.doPostRender(
-                    "/render", "0", "0", "True", "True", val.toString());
+                globalvar.doPostRender("/render",
+                    globalvar.positive_fotoresist.toString(), val.toString());
               },
             ),
     );
@@ -278,7 +281,7 @@ class _ControlWidget extends State<ControlWidget> {
         preview_window,
         choose_layer,
         //bottomSheet,
-        controlSection,
+        //controlSection,
         switchPhotoresist,
         //precisionSlider,
         clearuploadButton,
