@@ -5,6 +5,7 @@ import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
+import 'package:measured_size/measured_size.dart';
 
 class ControlWidget extends StatefulWidget {
   @override
@@ -15,6 +16,8 @@ class ControlWidget extends StatefulWidget {
 
 class _ControlWidget extends State<ControlWidget> {
   double _currentSliderValue = 20;
+  double _x = 0;
+  double _y = 0;
 
   var picked;
 
@@ -117,44 +120,65 @@ class _ControlWidget extends State<ControlWidget> {
         children: [
           const SizedBox(height: 20),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildButtonColumn(color, Icons.rotate_left_rounded, "move",
-                  {'key': 'rotate_right'}),
-              _buildButtonColumn(color, Icons.keyboard_arrow_up_rounded, "move",
-                  {'y': _currentSliderValue.round().toString()}),
-              _buildButtonColumn(color, Icons.rotate_right_rounded, "move",
-                  {'key': 'rotate_right'})
-            ],
-          ),
-          const SizedBox(height: 60),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.arrow_upward),
+                  iconSize: 50,
+                  color: Colors.brown,
+                  tooltip: 'Move motif up',
+                  onPressed: () {
+                    setState(() {
+                      _y = _y - 10;
+                    });
+                  },
+                ),
+              ]),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildButtonColumn(color, Icons.keyboard_arrow_left_rounded,
-                  "move", {'x': _currentSliderValue.round().toString()}),
-              _buildButtonColumn(
-                  color, Icons.select_all_rounded, "move", {'key': 'select'}),
-              _buildButtonColumn(color, Icons.keyboard_arrow_right_rounded,
-                  "move", {'x': (-_currentSliderValue).round().toString()}),
-            ],
-          ),
-          const SizedBox(height: 60),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  iconSize: 50,
+                  color: Colors.brown,
+                  tooltip: 'Move motif left',
+                  onPressed: () {
+                    setState(() {
+                      _x = _x - 10;
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward),
+                  iconSize: 50,
+                  color: Colors.brown,
+                  tooltip: 'Move motif right',
+                  onPressed: () {
+                    setState(() {
+                      _x = _x + 10;
+                    });
+                  },
+                ),
+              ]),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildButtonColumn(color, Icons.zoom_out_rounded, "scale",
-                  {'scale': rescale(false).toString()}),
-              _buildButtonColumn(color, Icons.keyboard_arrow_down_rounded,
-                  "move", {'y': (-_currentSliderValue).round().toString()}),
-              _buildButtonColumn(color, Icons.zoom_in_rounded, "scale",
-                  {'scale': rescale(true).toString()}),
-            ],
-          ),
-          const SizedBox(height: 20),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 50,
+                  color: Colors.brown,
+                  tooltip: 'Move motif down',
+                  onPressed: () {
+                    setState(() {
+                      _y = _y + 10;
+                    });
+                  },
+                ),
+              ]),
+          const SizedBox(height: 60),
         ],
       ),
     );
@@ -176,7 +200,7 @@ class _ControlWidget extends State<ControlWidget> {
         child: Column(
           children: [
             const SizedBox(height: 10),
-            Text('Precision slider'),
+            const Text('Precision slider'),
             const SizedBox(height: 10),
             Slider(
               value: _currentSliderValue,
@@ -224,14 +248,105 @@ class _ControlWidget extends State<ControlWidget> {
           ],
         ));
 
-    Widget preview_window = Card(
-        shadowColor: Theme.of(context).shadowColor,
-        elevation: 4,
-        child: loading
-            ? const CircularProgressIndicator()
-            : Image.network(imageUrl.toString()));
+    // Widget preview_window = Card(
+    //     shadowColor: Theme.of(context).shadowColor,
+    //     elevation: 4,
+    //     child: loading
+    //         ? const CircularProgressIndicator()
+    //         : Image.network(imageUrl.toString()));
 
-    Widget choose_layer = Card(
+    // Widget previewWindow = Card(
+    //     shadowColor: Theme.of(context).shadowColor,
+    //     elevation: 4,
+    //     child: loading
+    //         ? const CircularProgressIndicator()
+    //         : Container(
+    //             width: 1920 / 4,
+    //             height: 1080 / 3,
+    //             color: Colors.green,
+    //             padding: EdgeInsets.all(35),
+    //             alignment: Alignment.center,
+    //             child: Transform.translate(
+    //                 offset: Offset(_x, _y),
+    //                 child: Image.network(imageUrl.toString())),
+    //           ));
+
+    // Widget previewWindow = Center(
+    //     child: Stack(
+    //   children: [
+    //     Container(
+    //       height: 400,
+    //       color: Colors.green,
+    //       padding: EdgeInsets.all(35),
+    //       alignment: Alignment.center,
+    //       child: Transform.translate(
+    //           offset: Offset(_x, _y),
+    //           child: Image.network(imageUrl.toString())),
+    //     ),
+    //     Container(
+    //       height: 400,
+    //       decoration: BoxDecoration(
+    //           //color: Colors.black,
+    //           border: Border.all(width: 35, color: Colors.red)),
+    //     ),
+    //   ],
+    // ));
+
+    Widget previewWindow = LayoutBuilder(builder: (context, constraints) {
+      print("Height:" + constraints.maxHeight.toString());
+      print("Width:" + constraints.maxWidth.toString());
+      return Center(
+        child: Stack(
+          children: [
+            Container(
+              height: 1080 / 3,
+              width: constraints.maxWidth,
+              color: Colors.green,
+              //padding: const EdgeInsets.all(35),
+              alignment: Alignment.center,
+              child: Transform.translate(
+                  offset: Offset(_x, _y),
+                  child: Image.network(imageUrl.toString())),
+            ),
+            Container(
+                height: 1080 / 3,
+                width: constraints.maxWidth,
+                decoration: BoxDecoration(
+                  //color: Colors.black,
+                  // border: Border.all(width: 35, color: Colors.red)),
+                  border: BorderDirectional(
+                    start: BorderSide(
+                        color: Colors.red,
+                        width: ((constraints.maxWidth - (1920 / 3)) / 2) >= 0
+                            ? ((constraints.maxWidth - (1920 / 3)) / 2)
+                            : 0,
+                        style: BorderStyle.solid),
+                    top: BorderSide(
+                        color: Colors.red,
+                        width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
+                            ? 0
+                            : 0,
+                        style: BorderStyle.solid),
+                    bottom: BorderSide(
+                        color: Colors.red,
+                        width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
+                            ? 0
+                            : 0,
+                        style: BorderStyle.solid),
+                    end: BorderSide(
+                        color: Colors.red,
+                        width: ((constraints.maxWidth - (1920 / 3)) / 2) >= 0
+                            ? ((constraints.maxWidth - (1920 / 3)) / 2)
+                            : 0,
+                        style: BorderStyle.solid),
+                  ),
+                )),
+          ],
+        ),
+      );
+    });
+
+    Widget chooseLayer = Card(
       shadowColor: Theme.of(context).shadowColor,
       elevation: 4,
       child: loading
@@ -244,6 +359,7 @@ class _ControlWidget extends State<ControlWidget> {
               value: globalvar.selected_layer,
               items: leaveRequest.map((item) {
                 return DropdownMenuItem(
+                  alignment: AlignmentDirectional.centerStart,
                   value: item.value,
                   child: Text(item.value),
                 );
@@ -278,10 +394,10 @@ class _ControlWidget extends State<ControlWidget> {
 
     return ListView(
       children: [
-        preview_window,
-        choose_layer,
+        previewWindow,
+        chooseLayer,
         //bottomSheet,
-        //controlSection,
+        controlSection,
         switchPhotoresist,
         //precisionSlider,
         clearuploadButton,
@@ -303,7 +419,7 @@ class _ControlWidget extends State<ControlWidget> {
               size: 35,
             ),
             color: color,
-            padding: EdgeInsets.all(0))
+            padding: const EdgeInsets.all(0))
       ],
     );
   }

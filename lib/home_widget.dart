@@ -37,7 +37,10 @@ class _HomeState extends State<Home> {
             label: 'Control',
           ),
           // BottomNavigationBarItem(
-          //   icon: Icon(Icons.print_rounded,color: Colors.deepOrange,),
+          //   icon: Icon(
+          //     Icons.print_rounded,
+          //     color: Colors.deepOrange,
+          //   ),
           //   label: 'Print',
           // ),
           BottomNavigationBarItem(
