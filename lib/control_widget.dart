@@ -25,7 +25,7 @@ class _ControlWidget extends State<ControlWidget> {
   bool loading = true;
   List<ApiResponse> leaveRequest = [];
 
-  static Uri imageUrl = Uri.parse(
+  Uri imageUrl = Uri.parse(
       "${globalvar.server_ip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
 
   void get() async {
@@ -248,50 +248,6 @@ class _ControlWidget extends State<ControlWidget> {
           ],
         ));
 
-    // Widget preview_window = Card(
-    //     shadowColor: Theme.of(context).shadowColor,
-    //     elevation: 4,
-    //     child: loading
-    //         ? const CircularProgressIndicator()
-    //         : Image.network(imageUrl.toString()));
-
-    // Widget previewWindow = Card(
-    //     shadowColor: Theme.of(context).shadowColor,
-    //     elevation: 4,
-    //     child: loading
-    //         ? const CircularProgressIndicator()
-    //         : Container(
-    //             width: 1920 / 4,
-    //             height: 1080 / 3,
-    //             color: Colors.green,
-    //             padding: EdgeInsets.all(35),
-    //             alignment: Alignment.center,
-    //             child: Transform.translate(
-    //                 offset: Offset(_x, _y),
-    //                 child: Image.network(imageUrl.toString())),
-    //           ));
-
-    // Widget previewWindow = Center(
-    //     child: Stack(
-    //   children: [
-    //     Container(
-    //       height: 400,
-    //       color: Colors.green,
-    //       padding: EdgeInsets.all(35),
-    //       alignment: Alignment.center,
-    //       child: Transform.translate(
-    //           offset: Offset(_x, _y),
-    //           child: Image.network(imageUrl.toString())),
-    //     ),
-    //     Container(
-    //       height: 400,
-    //       decoration: BoxDecoration(
-    //           //color: Colors.black,
-    //           border: Border.all(width: 35, color: Colors.red)),
-    //     ),
-    //   ],
-    // ));
-
     Widget previewWindow = LayoutBuilder(builder: (context, constraints) {
       print("Height:" + constraints.maxHeight.toString());
       print("Width:" + constraints.maxWidth.toString());
@@ -301,7 +257,7 @@ class _ControlWidget extends State<ControlWidget> {
             Container(
               height: 1080 / 3,
               width: constraints.maxWidth,
-              color: Colors.green,
+              color: globalvar.positive_fotoresist? Colors.black : Colors.white,
               //padding: const EdgeInsets.all(35),
               alignment: Alignment.center,
               child: Transform.translate(
@@ -324,13 +280,13 @@ class _ControlWidget extends State<ControlWidget> {
                     top: BorderSide(
                         color: Colors.red,
                         width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
-                            ? 0
+                            ? (((1920 / 3)-constraints.maxWidth) / 3.5)
                             : 0,
                         style: BorderStyle.solid),
                     bottom: BorderSide(
                         color: Colors.red,
                         width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
-                            ? 0
+                            ? (((1920 / 3)-constraints.maxWidth) / 3.5)
                             : 0,
                         style: BorderStyle.solid),
                     end: BorderSide(
