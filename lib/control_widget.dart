@@ -40,7 +40,6 @@ class _ControlWidget extends State<ControlWidget> {
       }
       setState(() {
         loading = false;
-        globalvar.selected_layer = null;
       });
     } else {
       throw Exception();
@@ -189,6 +188,12 @@ class _ControlWidget extends State<ControlWidget> {
       onChanged: (bool value) {
         setState(() {
           globalvar.positive_fotoresist = value;
+          globalvar.doPostRender(
+              "/render",
+              globalvar.positive_fotoresist.toString(),
+              globalvar.selected_layer.toString());
+          imageUrl = Uri.parse(
+              "${globalvar.server_ip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
         });
       },
       secondary: const Icon(Icons.invert_colors),
@@ -257,7 +262,8 @@ class _ControlWidget extends State<ControlWidget> {
             Container(
               height: 1080 / 3,
               width: constraints.maxWidth,
-              color: globalvar.positive_fotoresist? Colors.black : Colors.white,
+              color:
+                  globalvar.positive_fotoresist ? Colors.black : Colors.white,
               //padding: const EdgeInsets.all(35),
               alignment: Alignment.center,
               child: Transform.translate(
@@ -280,13 +286,13 @@ class _ControlWidget extends State<ControlWidget> {
                     top: BorderSide(
                         color: Colors.red,
                         width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
-                            ? (((1920 / 3)-constraints.maxWidth) / 3.5)
+                            ? (((1920 / 3) - constraints.maxWidth) / 3.5)
                             : 0,
                         style: BorderStyle.solid),
                     bottom: BorderSide(
                         color: Colors.red,
                         width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
-                            ? (((1920 / 3)-constraints.maxWidth) / 3.5)
+                            ? (((1920 / 3) - constraints.maxWidth) / 3.5)
                             : 0,
                         style: BorderStyle.solid),
                     end: BorderSide(

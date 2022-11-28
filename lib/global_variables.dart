@@ -3,7 +3,7 @@ library baka_control.globals;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-String server_ip = 'http://192.168.0.24:8000';
+String server_ip = 'http://127.0.0.1:8000 ';
 int scale = 1;
 bool is_positive = false;
 bool is_mirror = false;
