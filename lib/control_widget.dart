@@ -94,20 +94,6 @@ class _ControlWidget extends State<ControlWidget> {
     return value;
   }
 
-  // void _show(BuildContext ctx) {
-  //   showModalBottomSheet(
-  //       elevation: 10,
-  //       backgroundColor: Colors.amber,
-  //       context: ctx,
-  //       builder: (ctx) => Container(
-  //             width: 300,
-  //             height: 250,
-  //             color: Colors.white54,
-  //             alignment: Alignment.center,
-  //             child: const Text('Breathe in... Breathe out...'),
-  //           ));
-  // }
-
   @override
   Widget build(BuildContext musimetoopravit) {
     Color color = Theme.of(musimetoopravit).accentColor;
@@ -366,25 +352,6 @@ class _ControlWidget extends State<ControlWidget> {
       ],
     );
   }
-
-  Column _buildButtonColumn(
-      Color color, IconData icon, var path, var parametrs) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-            onPressed: () => doPostparam(path, parametrs),
-            //constraints: BoxConstraints(maxHeight: 300),
-            icon: Icon(
-              icon,
-              size: 35,
-            ),
-            color: color,
-            padding: const EdgeInsets.all(0))
-      ],
-    );
-  }
 }
 
 class ApiResponse {
@@ -405,17 +372,4 @@ class ApiResponse {
         "Key": key,
         "Value": value,
       };
-}
-
-void doPostparam(var path, var params) async {
-  var url = Uri.http(globalvar.server_ip, '/' + path, params);
-  try {
-    var response = await http.post(url);
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-    print('$url');
-  } catch (e) {
-    print(e);
-    print('URL: $url'); // prompt error to user
-  }
 }
