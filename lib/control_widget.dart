@@ -1,13 +1,13 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
-import 'package:measured_size/measured_size.dart';
 
 class ControlWidget extends StatefulWidget {
+  const ControlWidget({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _ControlWidget();
@@ -15,10 +15,10 @@ class ControlWidget extends StatefulWidget {
 }
 
 class _ControlWidget extends State<ControlWidget> {
-  double _currentSliderValue = 20;
   double _x = 0;
   double _y = 0;
 
+  // ignore: prefer_typing_uninitialized_variables
   var picked;
 
   //String? value;
@@ -26,11 +26,11 @@ class _ControlWidget extends State<ControlWidget> {
   List<ApiResponse> leaveRequest = [];
 
   Uri imageUrl = Uri.parse(
-      "${globalvar.server_ip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+      "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
 
   void get() async {
     var response = await http.get(
-      Uri.parse("${globalvar.server_ip}/files_on_server"),
+      Uri.parse("${globalvar.serverip}/files_on_server"),
     );
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
@@ -55,13 +55,13 @@ class _ControlWidget extends State<ControlWidget> {
   void _pickFile() async {
     setState(() {
       loading = true;
-      globalvar.selected_layer = null;
+      globalvar.selectedlayer = null;
     });
     picked = await FilePicker.platform
         .pickFiles(allowMultiple: false, withData: true);
 
     if (picked != null) {
-      print(picked.files.first.name);
+      //print(picked.files.first.name);
       globalvar.doPostFile('/uploadfile', picked.files.first.path);
       setState(() {
         loading = false;
@@ -70,34 +70,8 @@ class _ControlWidget extends State<ControlWidget> {
     }
   }
 
-  void _clearCachedFiles() {
-    FilePicker.platform.clearTemporaryFiles().then((result) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: result! ? Colors.green : Colors.red,
-          content: Text((result
-              ? 'Temporary files removed with success.'
-              : 'Failed to clean temporary files')),
-        ),
-      );
-    });
-  }
-
-  rescale(bool direction) {
-    var value;
-
-    if (direction) {
-      value = 1 + (_currentSliderValue / 1000);
-    } else {
-      value = 1 - (_currentSliderValue / 1000);
-    }
-    return value;
-  }
-
   @override
   Widget build(BuildContext musimetoopravit) {
-    Color color = Theme.of(musimetoopravit).accentColor;
-
     Widget controlSection = Card(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -170,16 +144,16 @@ class _ControlWidget extends State<ControlWidget> {
 
     Widget switchPhotoresist = SwitchListTile(
       title: const Text('Positive fotoresist'),
-      value: globalvar.positive_fotoresist,
+      value: globalvar.positivefotoresist,
       onChanged: (bool value) {
         setState(() {
-          globalvar.positive_fotoresist = value;
+          globalvar.positivefotoresist = value;
           globalvar.doPostRender(
               "/render",
-              globalvar.positive_fotoresist.toString(),
-              globalvar.selected_layer.toString());
+              globalvar.positivefotoresist.toString(),
+              globalvar.selectedlayer.toString());
           imageUrl = Uri.parse(
-              "${globalvar.server_ip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+              "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
         });
       },
       secondary: const Icon(Icons.invert_colors),
@@ -222,7 +196,7 @@ class _ControlWidget extends State<ControlWidget> {
                 ),
                 onPressed: () {
                   _pickFile();
-                  print('upload pressed');
+                  // print('upload pressed');
                 }),
             const SizedBox(height: 60),
             const SizedBox(width: 8, height: 20),
@@ -233,23 +207,21 @@ class _ControlWidget extends State<ControlWidget> {
               ),
               onPressed: () {
                 globalvar.doPost('/destroy');
-                //_clearCachedFiles();
               },
             ),
           ],
         ));
 
     Widget previewWindow = LayoutBuilder(builder: (context, constraints) {
-      print("Height:" + constraints.maxHeight.toString());
-      print("Width:" + constraints.maxWidth.toString());
+      // print("Height:" + constraints.maxHeight.toString());
+      // print("Width:" + constraints.maxWidth.toString());
       return Center(
         child: Stack(
           children: [
             Container(
               height: 1080 / 3,
               width: constraints.maxWidth,
-              color:
-                  globalvar.positive_fotoresist ? Colors.white : Colors.black,
+              color: globalvar.positivefotoresist ? Colors.white : Colors.black,
               //padding: const EdgeInsets.all(35),
               alignment: Alignment.center,
               child: Transform.translate(
@@ -306,7 +278,7 @@ class _ControlWidget extends State<ControlWidget> {
               isExpanded: true,
               alignment: AlignmentDirectional.center,
               hint: const Text('Select layer'),
-              value: globalvar.selected_layer,
+              value: globalvar.selectedlayer,
               items: leaveRequest.map((item) {
                 return DropdownMenuItem(
                   alignment: AlignmentDirectional.centerStart,
@@ -316,12 +288,12 @@ class _ControlWidget extends State<ControlWidget> {
               }).toList(),
               onChanged: (val) {
                 setState(() {
-                  globalvar.selected_layer = val;
+                  globalvar.selectedlayer = val;
                   imageUrl = Uri.parse(
-                      "${globalvar.server_ip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+                      "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
                 });
                 globalvar.doPostRender("/render",
-                    globalvar.positive_fotoresist.toString(), val.toString());
+                    globalvar.positivefotoresist.toString(), val.toString());
               },
             ),
     );
@@ -369,9 +341,9 @@ class _ControlWidget extends State<ControlWidget> {
       child: ListView(
         children: [
           previewWindow,
+          controlSection,
           chooseLayer,
           //bottomSheet,
-          controlSection,
           switchPhotoresist,
           //precisionSlider,
           clearuploadButton,

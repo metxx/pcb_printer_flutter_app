@@ -1,8 +1,13 @@
+import 'package:flutter/services.dart';
+
 import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lan_scanner/lan_scanner.dart';
 
 class SettingsWidget extends StatefulWidget {
+  const SettingsWidget({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _SettingsWidget();
@@ -10,8 +15,13 @@ class SettingsWidget extends StatefulWidget {
 }
 
 class _SettingsWidget extends State<SettingsWidget> {
-  bool _fullcreen = false;
   late TextEditingController _controller;
+
+  final List<HostModel> _hosts = <HostModel>[];
+
+  double progress = 0.0;
+
+  late SnackBar snackBar;
 
   @override
   void initState() {
@@ -27,23 +37,69 @@ class _SettingsWidget extends State<SettingsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Widget switchFullscreen = SwitchListTile(
-      title: const Text('Fullscreen mode'),
-      value: _fullcreen,
-      onChanged: (bool value) {
-        setState(() {
-          _fullcreen = value;
-        });
-        doPostparam('fullscreen', {'enable': _fullcreen.toString()});
-      },
-      secondary: const Icon(Icons.fullscreen_rounded),
-    );
+    Widget lanscaner = SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            LinearProgressIndicator(value: progress),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  progress = 0.0;
+                  _hosts.clear();
+                });
 
+                final scanner = LanScanner(debugLogging: true);
+                final stream = scanner.icmpScan(
+                  '192.168.0',
+                  scanThreads: 20,
+                  progressCallback: (newProgress) {
+                    setState(() {
+                      progress = newProgress;
+                    });
+
+                    print('progress: $progress');
+                  },
+                );
+
+                stream.listen((HostModel host) {
+                  setState(() {
+                    _hosts.add(host);
+                  });
+                });
+              },
+              child: const Text('Scan'),
+            ),
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: _hosts.length,
+              itemBuilder: (context, index) {
+                final host = _hosts[index];
+
+                return Card(
+                  child: ListTile(
+                    title: Text(host.ip),
+                    onTap: () => setState(
+                      () {
+                        globalvar.serverip = globalvar.serverhttp +
+                            host.ip +
+                            globalvar.serverport;
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
     Widget serverIPTextField = TextField(
       controller: _controller,
       decoration: InputDecoration(
         border: OutlineInputBorder(),
-        labelText: 'Current server IP: ' + globalvar.server_ip,
+        labelText: 'Current server IP: ${globalvar.serverip}',
       ),
       onSubmitted: (String value) async {
         await showDialog<void>(
@@ -64,19 +120,20 @@ class _SettingsWidget extends State<SettingsWidget> {
           },
         );
         setState(() {
-          globalvar.server_ip = value;
+          globalvar.serverip =
+              globalvar.serverhttp + value + globalvar.serverport;
         });
       },
     );
 
     return ListView(
-      children: [switchFullscreen, serverIPTextField],
+      children: [serverIPTextField, lanscaner],
     );
   }
 }
 
 void doPostparam(var path, var params) async {
-  var url = Uri.http(globalvar.server_ip, '/api/control/' + path, params);
+  var url = Uri.http(globalvar.serverip, '/api/control/' + path, params);
   try {
     var response = await http.post(url);
     print('Response status: ${response.statusCode}');
@@ -89,7 +146,7 @@ void doPostparam(var path, var params) async {
 }
 
 void doPost(var path) async {
-  var url = Uri.http(globalvar.server_ip, '/api/control/' + path);
+  var url = Uri.http(globalvar.serverip, '/api/control/' + path);
   try {
     var response = await http.post(url);
     print('Response status: ${response.statusCode}');

@@ -2,6 +2,8 @@ import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
 
 class PrintWidget extends StatefulWidget {
+  const PrintWidget({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _PrintWidget();
@@ -11,19 +13,16 @@ class PrintWidget extends StatefulWidget {
 class _PrintWidget extends State<PrintWidget> {
   double _currentPowerSliderValue = 50;
   double _currenttimeSliderValue = 50;
-  bool _overlay = false;
 
   @override
   Widget build(BuildContext context) {
-    Color color = Theme.of(context).accentColor;
-
     Widget powerOutputSlider = Card(
         shadowColor: Theme.of(context).shadowColor,
         elevation: 4,
         child: Column(
           children: [
             const SizedBox(height: 8),
-            Text('UV LED output power'),
+            const Text('UV LED output power'),
             const SizedBox(height: 8),
             Slider(
               value: _currentPowerSliderValue,
@@ -46,7 +45,7 @@ class _PrintWidget extends State<PrintWidget> {
         child: Column(
           children: [
             const SizedBox(height: 8),
-            Text('Exposure time in minutes'),
+            const Text('Exposure time in minutes'),
             const SizedBox(height: 8),
             Slider(
               value: _currenttimeSliderValue,
@@ -78,7 +77,7 @@ class _PrintWidget extends State<PrintWidget> {
                 ),
                 onPressed: () {
                   globalvar.doPostJason("/print", "0", "0", "false", "false",
-                      "5000", "0", globalvar.selected_layer.toString());
+                      "5000", "0", globalvar.selectedlayer.toString());
                   //globalvar.doPost('/destroy');
                 }),
           ],

@@ -41,6 +41,7 @@ dependencies:
   cached_network_image: ^3.2.2
   matrix_gesture_detector: ^0.1.0
   measured_size: ^1.0.0
+  lan_scanner: ^3.5.0
 
 dev_dependencies:
   flutter_test:

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'control_widget.dart';
 import 'settings_widget.dart';
-import 'print_widget.dart';
 
 class Home extends StatefulWidget {
+  const Home({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _HomeState();
@@ -12,17 +13,13 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-  final List<Widget> _children = [
-    ControlWidget(),
-    // PrintWidget(),
-    SettingsWidget()
-  ];
+  final List<Widget> _children = [const ControlWidget(), SettingsWidget()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('PCB Printer'),
+        title: const Text('PCB Printer'),
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

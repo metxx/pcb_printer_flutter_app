@@ -3,12 +3,15 @@ library baka_control.globals;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-String server_ip = 'http://127.0.0.1:8000 ';
+String serverhttp = 'http://';
+String serverport = ':8000';
+String inputserverip = '127.0.0.1';
+String serverip = serverhttp + inputserverip + serverport;
 int scale = 1;
-bool is_positive = false;
-bool is_mirror = false;
-String? selected_layer;
-bool positive_fotoresist = false;
+bool ispositive = false;
+bool ismirror = false;
+String? selectedlayer;
+bool positivefotoresist = false;
 
 Future<http.Response> doPostJason(
     String path,
@@ -20,7 +23,7 @@ Future<http.Response> doPostJason(
     String pwm,
     String filename) {
   return http.post(
-    Uri.parse(server_ip + path),
+    Uri.parse(serverip + path),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -39,7 +42,7 @@ Future<http.Response> doPostJason(
 Future<http.Response> doPostRender(
     String path, String positive, String filename) {
   return http.post(
-    Uri.parse(server_ip + path),
+    Uri.parse(serverip + path),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -50,16 +53,16 @@ Future<http.Response> doPostRender(
 
 void doPostFile(String path, var file) async {
   http.MultipartRequest request =
-      http.MultipartRequest("POST", Uri.parse(server_ip + path));
+      http.MultipartRequest("POST", Uri.parse(serverip + path));
 
   http.MultipartFile multipartFile =
       await http.MultipartFile.fromPath('file', file);
 
   request.files.add(multipartFile);
 
-  var streamedResponse = await request.send();
-  var response = await http.Response.fromStream(streamedResponse);
-  print(response.body);
+  // var streamedResponse = await request.send();
+  // var response = await http.Response.fromStream(streamedResponse);
+  //print(response.body);
   // items = List<String>.from(jsonDecode(response.body));
   // print(items);
 
@@ -67,7 +70,7 @@ void doPostFile(String path, var file) async {
 }
 
 void doPost(var path) async {
-  var url = Uri.parse(server_ip + path);
+  var url = Uri.parse(serverip + path);
   try {
     var response = await http.post(url);
     print('Response status: ${response.statusCode}');
