@@ -185,28 +185,28 @@ class _ControlWidget extends State<ControlWidget> {
       secondary: const Icon(Icons.invert_colors),
     );
 
-    Widget precisionSlider = Card(
-        shadowColor: Theme.of(context).shadowColor,
-        elevation: 4,
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
-            const Text('Precision slider'),
-            const SizedBox(height: 10),
-            Slider(
-              value: _currentSliderValue,
-              min: 1,
-              max: 100,
-              divisions: 10,
-              label: _currentSliderValue.round().toString(),
-              onChanged: (double value) {
-                setState(() {
-                  _currentSliderValue = value;
-                });
-              },
-            ),
-          ],
-        ));
+    // Widget precisionSlider = Card(
+    //     shadowColor: Theme.of(context).shadowColor,
+    //     elevation: 4,
+    //     child: Column(
+    //       children: [
+    //         const SizedBox(height: 10),
+    //         const Text('Precision slider'),
+    //         const SizedBox(height: 10),
+    //         Slider(
+    //           value: _currentSliderValue,
+    //           min: 1,
+    //           max: 100,
+    //           divisions: 10,
+    //           label: _currentSliderValue.round().toString(),
+    //           onChanged: (double value) {
+    //             setState(() {
+    //               _currentSliderValue = value;
+    //             });
+    //           },
+    //         ),
+    //       ],
+    //     ));
 
     Widget clearuploadButton = Card(
         shadowColor: Theme.of(context).shadowColor,
@@ -249,7 +249,7 @@ class _ControlWidget extends State<ControlWidget> {
               height: 1080 / 3,
               width: constraints.maxWidth,
               color:
-                  globalvar.positive_fotoresist ? Colors.black : Colors.white,
+                  globalvar.positive_fotoresist ? Colors.white : Colors.black,
               //padding: const EdgeInsets.all(35),
               alignment: Alignment.center,
               child: Transform.translate(
@@ -272,13 +272,15 @@ class _ControlWidget extends State<ControlWidget> {
                     top: BorderSide(
                         color: Colors.red,
                         width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
-                            ? (((1920 / 3) - constraints.maxWidth) / 3.5)
+                            ? (((1080 / 3) - constraints.maxWidth * (0.5625)) /
+                                2)
                             : 0,
                         style: BorderStyle.solid),
                     bottom: BorderSide(
                         color: Colors.red,
                         width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
-                            ? (((1920 / 3) - constraints.maxWidth) / 3.5)
+                            ? (((1080 / 3) - constraints.maxWidth * (0.5625)) /
+                                2)
                             : 0,
                         style: BorderStyle.solid),
                     end: BorderSide(
@@ -340,16 +342,41 @@ class _ControlWidget extends State<ControlWidget> {
     //       ],
     //     ));
 
-    return ListView(
-      children: [
-        previewWindow,
-        chooseLayer,
-        //bottomSheet,
-        controlSection,
-        switchPhotoresist,
-        //precisionSlider,
-        clearuploadButton,
-      ],
+    // return ListView(
+    //   children: [
+    //     previewWindow,
+    //     chooseLayer,
+    //     //bottomSheet,
+    //     controlSection,
+    //     switchPhotoresist,
+    //     //precisionSlider,
+    //     clearuploadButton,
+    //   ],
+    // );
+    // }
+
+    return Container(
+      constraints: BoxConstraints(
+        minHeight: 500, //minimum height
+        minWidth: 300, // minimum width
+
+        maxHeight: MediaQuery.of(context).size.height,
+        //maximum height set to 100% of vertical height
+
+        maxWidth: MediaQuery.of(context).size.width,
+        //maximum width set to 100% of width
+      ),
+      child: ListView(
+        children: [
+          previewWindow,
+          chooseLayer,
+          //bottomSheet,
+          controlSection,
+          switchPhotoresist,
+          //precisionSlider,
+          clearuploadButton,
+        ],
+      ),
     );
   }
 }
