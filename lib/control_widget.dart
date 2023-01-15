@@ -40,7 +40,6 @@ class _ControlWidget extends State<ControlWidget> {
       }
       setState(() {
         loading = false;
-        globalvar.selected_layer = null;
       });
     } else {
       throw Exception();
@@ -94,20 +93,6 @@ class _ControlWidget extends State<ControlWidget> {
     }
     return value;
   }
-
-  // void _show(BuildContext ctx) {
-  //   showModalBottomSheet(
-  //       elevation: 10,
-  //       backgroundColor: Colors.amber,
-  //       context: ctx,
-  //       builder: (ctx) => Container(
-  //             width: 300,
-  //             height: 250,
-  //             color: Colors.white54,
-  //             alignment: Alignment.center,
-  //             child: const Text('Breathe in... Breathe out...'),
-  //           ));
-  // }
 
   @override
   Widget build(BuildContext musimetoopravit) {
@@ -189,33 +174,39 @@ class _ControlWidget extends State<ControlWidget> {
       onChanged: (bool value) {
         setState(() {
           globalvar.positive_fotoresist = value;
+          globalvar.doPostRender(
+              "/render",
+              globalvar.positive_fotoresist.toString(),
+              globalvar.selected_layer.toString());
+          imageUrl = Uri.parse(
+              "${globalvar.server_ip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
         });
       },
       secondary: const Icon(Icons.invert_colors),
     );
 
-    Widget precisionSlider = Card(
-        shadowColor: Theme.of(context).shadowColor,
-        elevation: 4,
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
-            const Text('Precision slider'),
-            const SizedBox(height: 10),
-            Slider(
-              value: _currentSliderValue,
-              min: 1,
-              max: 100,
-              divisions: 10,
-              label: _currentSliderValue.round().toString(),
-              onChanged: (double value) {
-                setState(() {
-                  _currentSliderValue = value;
-                });
-              },
-            ),
-          ],
-        ));
+    // Widget precisionSlider = Card(
+    //     shadowColor: Theme.of(context).shadowColor,
+    //     elevation: 4,
+    //     child: Column(
+    //       children: [
+    //         const SizedBox(height: 10),
+    //         const Text('Precision slider'),
+    //         const SizedBox(height: 10),
+    //         Slider(
+    //           value: _currentSliderValue,
+    //           min: 1,
+    //           max: 100,
+    //           divisions: 10,
+    //           label: _currentSliderValue.round().toString(),
+    //           onChanged: (double value) {
+    //             setState(() {
+    //               _currentSliderValue = value;
+    //             });
+    //           },
+    //         ),
+    //       ],
+    //     ));
 
     Widget clearuploadButton = Card(
         shadowColor: Theme.of(context).shadowColor,
@@ -257,7 +248,8 @@ class _ControlWidget extends State<ControlWidget> {
             Container(
               height: 1080 / 3,
               width: constraints.maxWidth,
-              color: globalvar.positive_fotoresist? Colors.black : Colors.white,
+              color:
+                  globalvar.positive_fotoresist ? Colors.white : Colors.black,
               //padding: const EdgeInsets.all(35),
               alignment: Alignment.center,
               child: Transform.translate(
@@ -280,13 +272,15 @@ class _ControlWidget extends State<ControlWidget> {
                     top: BorderSide(
                         color: Colors.red,
                         width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
-                            ? (((1920 / 3)-constraints.maxWidth) / 3.5)
+                            ? (((1080 / 3) - constraints.maxWidth * (0.5625)) /
+                                2)
                             : 0,
                         style: BorderStyle.solid),
                     bottom: BorderSide(
                         color: Colors.red,
                         width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
-                            ? (((1920 / 3)-constraints.maxWidth) / 3.5)
+                            ? (((1080 / 3) - constraints.maxWidth * (0.5625)) /
+                                2)
                             : 0,
                         style: BorderStyle.solid),
                     end: BorderSide(
@@ -348,35 +342,41 @@ class _ControlWidget extends State<ControlWidget> {
     //       ],
     //     ));
 
-    return ListView(
-      children: [
-        previewWindow,
-        chooseLayer,
-        //bottomSheet,
-        controlSection,
-        switchPhotoresist,
-        //precisionSlider,
-        clearuploadButton,
-      ],
-    );
-  }
+    // return ListView(
+    //   children: [
+    //     previewWindow,
+    //     chooseLayer,
+    //     //bottomSheet,
+    //     controlSection,
+    //     switchPhotoresist,
+    //     //precisionSlider,
+    //     clearuploadButton,
+    //   ],
+    // );
+    // }
 
-  Column _buildButtonColumn(
-      Color color, IconData icon, var path, var parametrs) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-            onPressed: () => doPostparam(path, parametrs),
-            //constraints: BoxConstraints(maxHeight: 300),
-            icon: Icon(
-              icon,
-              size: 35,
-            ),
-            color: color,
-            padding: const EdgeInsets.all(0))
-      ],
+    return Container(
+      constraints: BoxConstraints(
+        minHeight: 500, //minimum height
+        minWidth: 300, // minimum width
+
+        maxHeight: MediaQuery.of(context).size.height,
+        //maximum height set to 100% of vertical height
+
+        maxWidth: MediaQuery.of(context).size.width,
+        //maximum width set to 100% of width
+      ),
+      child: ListView(
+        children: [
+          previewWindow,
+          chooseLayer,
+          //bottomSheet,
+          controlSection,
+          switchPhotoresist,
+          //precisionSlider,
+          clearuploadButton,
+        ],
+      ),
     );
   }
 }
@@ -399,17 +399,4 @@ class ApiResponse {
         "Key": key,
         "Value": value,
       };
-}
-
-void doPostparam(var path, var params) async {
-  var url = Uri.http(globalvar.server_ip, '/' + path, params);
-  try {
-    var response = await http.post(url);
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-    print('$url');
-  } catch (e) {
-    print(e);
-    print('URL: $url'); // prompt error to user
-  }
 }
