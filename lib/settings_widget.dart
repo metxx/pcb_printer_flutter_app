@@ -4,6 +4,8 @@ import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lan_scanner/lan_scanner.dart';
+import 'dart:io';
+import 'package:network_info_plus/network_info_plus.dart';
 
 class SettingsWidget extends StatefulWidget {
   const SettingsWidget({super.key});
@@ -156,4 +158,28 @@ void doPost(var path) async {
     print(e);
     print('URL: $url'); // prompt error to user
   }
+}
+
+Future<void> scanNetwork() async {
+  await (NetworkInfo().getWifiIP()).then(
+    (ip) async {
+      final String subnet = ip!.substring(0, ip.lastIndexOf('.'));
+      const port = 22;
+      for (var i = 0; i < 256; i++) {
+        String ip = '$subnet.$i';
+        await Socket.connect(ip, port, timeout: Duration(milliseconds: 50))
+            .then((socket) async {
+          await InternetAddress(socket.address.address).reverse().then((value) {
+            print(value.host);
+            print(socket.address.address);
+          }).catchError((error) {
+            print(socket.address.address);
+            print('Error: $error');
+          });
+          socket.destroy();
+        }).catchError((error) => null);
+      }
+    },
+  );
+  print('Done');
 }

@@ -42,6 +42,7 @@ dependencies:
   matrix_gesture_detector: ^0.1.0
   measured_size: ^1.0.0
   lan_scanner: ^3.5.0
+  network_info_plus: ^3.0.2
 
 dev_dependencies:
   flutter_test:

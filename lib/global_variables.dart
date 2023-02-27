@@ -5,13 +5,14 @@ import 'dart:convert';
 
 String serverhttp = 'http://';
 String serverport = ':8000';
-String inputserverip = '127.0.0.1';
+String inputserverip = '192.168.137.3';
 String serverip = serverhttp + inputserverip + serverport;
 int scale = 1;
 bool ispositive = false;
-bool ismirror = false;
+bool ismirror = true;
 String? selectedlayer;
 bool positivefotoresist = false;
+String exptime = '0';
 
 Future<http.Response> doPostJason(
     String path,

@@ -15,6 +15,7 @@ class ControlWidget extends StatefulWidget {
 }
 
 class _ControlWidget extends State<ControlWidget> {
+  late TextEditingController _controller;
   double _x = 0;
   double _y = 0;
 
@@ -48,6 +49,7 @@ class _ControlWidget extends State<ControlWidget> {
 
   @override
   void initState() {
+    _controller = TextEditingController();
     get();
     super.initState();
   }
@@ -159,29 +161,6 @@ class _ControlWidget extends State<ControlWidget> {
       secondary: const Icon(Icons.invert_colors),
     );
 
-    // Widget precisionSlider = Card(
-    //     shadowColor: Theme.of(context).shadowColor,
-    //     elevation: 4,
-    //     child: Column(
-    //       children: [
-    //         const SizedBox(height: 10),
-    //         const Text('Precision slider'),
-    //         const SizedBox(height: 10),
-    //         Slider(
-    //           value: _currentSliderValue,
-    //           min: 1,
-    //           max: 100,
-    //           divisions: 10,
-    //           label: _currentSliderValue.round().toString(),
-    //           onChanged: (double value) {
-    //             setState(() {
-    //               _currentSliderValue = value;
-    //             });
-    //           },
-    //         ),
-    //       ],
-    //     ));
-
     Widget clearuploadButton = Card(
         shadowColor: Theme.of(context).shadowColor,
         elevation: 4,
@@ -198,17 +177,6 @@ class _ControlWidget extends State<ControlWidget> {
                   _pickFile();
                   // print('upload pressed');
                 }),
-            const SizedBox(height: 60),
-            const SizedBox(width: 8, height: 20),
-            ElevatedButton(
-              child: const Text(
-                'Clear',
-                textScaleFactor: 1.5,
-              ),
-              onPressed: () {
-                globalvar.doPost('/destroy');
-              },
-            ),
           ],
         ));
 
@@ -298,34 +266,62 @@ class _ControlWidget extends State<ControlWidget> {
             ),
     );
 
-    // Widget bottomSheet = Card(
-    //     shadowColor: Theme.of(context).shadowColor,
-    //     elevation: 4,
-    //     child: Row(
-    //       mainAxisAlignment: MainAxisAlignment.center,
-    //       children: [
-    //         const SizedBox(width: 8, height: 20),
-    //         ElevatedButton(
-    //             child: const Text(
-    //               'Choose layer',
-    //               textScaleFactor: 1.5,
-    //             ),
-    //             onPressed: () => _show(context)),
-    //       ],
-    //     ));
+    Widget serverIPTextField = TextField(
+      controller: _controller,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        labelText: 'Current exposure time in socnds: ${globalvar.exptime}',
+      ),
+      onSubmitted: (String value) async {
+        await showDialog<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Exposure time'),
+              content: Text('Exposure time was set to "$value" seconds'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        setState(() {
+          globalvar.exptime = value;
+        });
+      },
+    );
 
-    // return ListView(
-    //   children: [
-    //     previewWindow,
-    //     chooseLayer,
-    //     //bottomSheet,
-    //     controlSection,
-    //     switchPhotoresist,
-    //     //precisionSlider,
-    //     clearuploadButton,
-    //   ],
-    // );
-    // }
+    Widget printButton = Card(
+        shadowColor: Theme.of(context).shadowColor,
+        elevation: 4,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(width: 8, height: 20),
+            ElevatedButton(
+                child: const Text(
+                  'Print motif',
+                  textScaleFactor: 1.5,
+                ),
+                onPressed: () {
+                  globalvar.doPostJason(
+                      "/print",
+                      (_x * 6.4).toString(),
+                      (_y * 6.4).toString(),
+                      globalvar.ispositive.toString(),
+                      globalvar.ismirror.toString(),
+                      globalvar.exptime,
+                      "0",
+                      globalvar.selectedlayer.toString());
+                  // print('upload pressed');
+                }),
+          ],
+        ));
 
     return Container(
       constraints: BoxConstraints(
@@ -343,10 +339,10 @@ class _ControlWidget extends State<ControlWidget> {
           previewWindow,
           controlSection,
           chooseLayer,
-          //bottomSheet,
           switchPhotoresist,
-          //precisionSlider,
           clearuploadButton,
+          serverIPTextField,
+          printButton,
         ],
       ),
     );
