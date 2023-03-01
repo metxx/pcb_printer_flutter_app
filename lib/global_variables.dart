@@ -1,7 +1,15 @@
 library baka_control.globals;
 
+//import 'dart:ffi';
+//import 'dart:html';
+
+import 'dart:ffi';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:get_storage/get_storage.dart';
+
+Duration _duration = const Duration(seconds: 0);
 
 String serverhttp = 'http://';
 String serverport = ':8000';
@@ -10,9 +18,16 @@ String serverip = serverhttp + inputserverip + serverport;
 int scale = 1;
 bool ispositive = false;
 bool ismirror = true;
-String? selectedlayer;
+String? selectedToplayer;
+String? selectedBottomlayer;
 bool positivefotoresist = false;
-String exptime = '0';
+int exptime = 5;
+// List<bool> isSelected = [false];
+bool locked = false;
+int topbottom = 0;
+
+double movex = 0;
+double movey = 0;
 
 Future<http.Response> doPostJason(
     String path,
@@ -47,8 +62,10 @@ Future<http.Response> doPostRender(
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(
-        <String, String>{'positive': positive, 'file_name': filename}),
+    body: jsonEncode(<String, String>{
+      'positive': positive,
+      'file_name': filename,
+    }),
   );
 }
 

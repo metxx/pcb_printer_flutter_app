@@ -77,7 +77,7 @@ class _PrintWidget extends State<PrintWidget> {
                 ),
                 onPressed: () {
                   globalvar.doPostJason("/print", "0", "0", "false", "false",
-                      "5000", "0", globalvar.selectedlayer.toString());
+                      "5000", "0", globalvar.selectedToplayer.toString());
                   //globalvar.doPost('/destroy');
                 }),
           ],

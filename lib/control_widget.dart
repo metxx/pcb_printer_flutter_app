@@ -4,6 +4,7 @@ import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class ControlWidget extends StatefulWidget {
   const ControlWidget({super.key});
@@ -16,8 +17,8 @@ class ControlWidget extends StatefulWidget {
 
 class _ControlWidget extends State<ControlWidget> {
   late TextEditingController _controller;
-  double _x = 0;
-  double _y = 0;
+  // double _x = 0;
+  // double _y = 0;
 
   // ignore: prefer_typing_uninitialized_variables
   var picked;
@@ -57,7 +58,7 @@ class _ControlWidget extends State<ControlWidget> {
   void _pickFile() async {
     setState(() {
       loading = true;
-      globalvar.selectedlayer = null;
+      globalvar.selectedToplayer = null;
     });
     picked = await FilePicker.platform
         .pickFiles(allowMultiple: false, withData: true);
@@ -79,7 +80,7 @@ class _ControlWidget extends State<ControlWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 20),
+          //const SizedBox(height: 20),
           Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -88,10 +89,12 @@ class _ControlWidget extends State<ControlWidget> {
                   icon: const Icon(Icons.arrow_upward),
                   iconSize: 50,
                   color: Colors.brown,
-                  tooltip: 'Move motif up',
+                  tooltip: globalvar.locked ? 'Motif is locked' : null,
                   onPressed: () {
                     setState(() {
-                      _y = _y - 10;
+                      globalvar.locked
+                          ? null
+                          : globalvar.movey = globalvar.movey - 10;
                     });
                   },
                 ),
@@ -104,10 +107,12 @@ class _ControlWidget extends State<ControlWidget> {
                   icon: const Icon(Icons.arrow_back),
                   iconSize: 50,
                   color: Colors.brown,
-                  tooltip: 'Move motif left',
+                  tooltip: globalvar.locked ? 'Motif is locked' : null,
                   onPressed: () {
                     setState(() {
-                      _x = _x - 10;
+                      globalvar.locked
+                          ? null
+                          : globalvar.movex = globalvar.movex - 10;
                     });
                   },
                 ),
@@ -115,10 +120,12 @@ class _ControlWidget extends State<ControlWidget> {
                   icon: const Icon(Icons.arrow_forward),
                   iconSize: 50,
                   color: Colors.brown,
-                  tooltip: 'Move motif right',
+                  tooltip: globalvar.locked ? 'Motif is locked' : null,
                   onPressed: () {
                     setState(() {
-                      _x = _x + 10;
+                      globalvar.locked
+                          ? null
+                          : globalvar.movex = globalvar.movex + 10;
                     });
                   },
                 ),
@@ -131,58 +138,22 @@ class _ControlWidget extends State<ControlWidget> {
                   icon: const Icon(Icons.arrow_downward),
                   iconSize: 50,
                   color: Colors.brown,
-                  tooltip: 'Move motif down',
+                  tooltip: globalvar.locked ? 'Motif is locked' : null,
                   onPressed: () {
                     setState(() {
-                      _y = _y + 10;
+                      globalvar.locked
+                          ? null
+                          : globalvar.movey = globalvar.movey + 10;
                     });
                   },
                 ),
               ]),
-          const SizedBox(height: 60),
         ],
       ),
     );
 
-    Widget switchPhotoresist = SwitchListTile(
-      title: const Text('Positive fotoresist'),
-      value: globalvar.positivefotoresist,
-      onChanged: (bool value) {
-        setState(() {
-          globalvar.positivefotoresist = value;
-          globalvar.doPostRender(
-              "/render",
-              globalvar.positivefotoresist.toString(),
-              globalvar.selectedlayer.toString());
-          imageUrl = Uri.parse(
-              "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
-        });
-      },
-      secondary: const Icon(Icons.invert_colors),
-    );
-
-    Widget clearuploadButton = Card(
-        shadowColor: Theme.of(context).shadowColor,
-        elevation: 4,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(width: 8, height: 20),
-            ElevatedButton(
-                child: const Text(
-                  'Upload Gerber',
-                  textScaleFactor: 1.5,
-                ),
-                onPressed: () {
-                  _pickFile();
-                  // print('upload pressed');
-                }),
-          ],
-        ));
-
+    @override
     Widget previewWindow = LayoutBuilder(builder: (context, constraints) {
-      // print("Height:" + constraints.maxHeight.toString());
-      // print("Width:" + constraints.maxWidth.toString());
       return Center(
         child: Stack(
           children: [
@@ -193,8 +164,10 @@ class _ControlWidget extends State<ControlWidget> {
               //padding: const EdgeInsets.all(35),
               alignment: Alignment.center,
               child: Transform.translate(
-                  offset: Offset(_x, _y),
-                  child: Image.network(imageUrl.toString())),
+                  offset: Offset(globalvar.movex, globalvar.movey),
+                  child: globalvar.selectedToplayer != null
+                      ? Image.network(imageUrl.toString())
+                      : Image.asset('images/calibration.png')),
             ),
             Container(
                 height: 1080 / 3,
@@ -231,95 +204,175 @@ class _ControlWidget extends State<ControlWidget> {
                         style: BorderStyle.solid),
                   ),
                 )),
+            Container(
+              height: 1080 / 3,
+              width: constraints.maxWidth,
+              // padding: const EdgeInsets.all(35),
+              alignment: Alignment.topCenter,
+              child: IconButton(
+                isSelected: globalvar.locked,
+                icon: globalvar.locked
+                    ? const Icon(Icons.lock)
+                    : const Icon(Icons.lock_open),
+                iconSize: 50,
+                color: globalvar.locked ? Colors.amber : Colors.brown,
+                //tooltip: 'Move motif right',
+                onPressed: () {
+                  setState(() {
+                    globalvar.locked = !globalvar.locked;
+                  });
+                },
+              ),
+            ),
           ],
         ),
       );
     });
 
-    Widget chooseLayer = Card(
+    @override
+    Widget chooseTopLayer = Card(
       shadowColor: Theme.of(context).shadowColor,
       elevation: 4,
-      child: loading
-          ? const CircularProgressIndicator()
-          : DropdownButton<String>(
-              icon: const Icon(Icons.arrow_drop_down_sharp),
-              isExpanded: true,
-              alignment: AlignmentDirectional.center,
-              hint: const Text('Select layer'),
-              value: globalvar.selectedlayer,
-              items: leaveRequest.map((item) {
-                return DropdownMenuItem(
-                  alignment: AlignmentDirectional.centerStart,
-                  value: item.value,
-                  child: Text(item.value),
-                );
-              }).toList(),
-              onChanged: (val) {
-                setState(() {
-                  globalvar.selectedlayer = val;
-                  imageUrl = Uri.parse(
-                      "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
-                });
-                globalvar.doPostRender("/render",
-                    globalvar.positivefotoresist.toString(), val.toString());
-              },
-            ),
-    );
-
-    Widget serverIPTextField = TextField(
-      controller: _controller,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(),
-        labelText: 'Current exposure time in socnds: ${globalvar.exptime}',
-      ),
-      onSubmitted: (String value) async {
-        await showDialog<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Exposure time'),
-              content: Text('Exposure time was set to "$value" seconds'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
+      margin: const EdgeInsets.all(5),
+      child: Container(
+          margin: const EdgeInsets.all(5),
+          child: loading
+              ? const SizedBox(
+                  height: 25.0,
+                  width: 1,
+                  child: LinearProgressIndicator(),
+                )
+              : DropdownButton<String>(
+                  icon: const Icon(Icons.arrow_drop_down_sharp),
+                  isExpanded: true,
+                  alignment: AlignmentDirectional.center,
+                  hint: globalvar.locked
+                      ? const Text('Motif is locked')
+                      : const Text('Select layer'),
+                  value: globalvar.selectedToplayer,
+                  items: leaveRequest.map((item) {
+                    return DropdownMenuItem(
+                      enabled: !globalvar.locked,
+                      alignment: AlignmentDirectional.centerStart,
+                      value: item.value,
+                      child: Text(item.value),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    setState(() {
+                      globalvar.locked
+                          ? null
+                          : globalvar.selectedToplayer = val;
+                      globalvar.locked
+                          ? null
+                          : imageUrl = Uri.parse(
+                              "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+                    });
+                    globalvar.doPostRender(
+                        "/render",
+                        globalvar.positivefotoresist.toString(),
+                        val.toString());
                   },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-        setState(() {
-          globalvar.exptime = value;
-        });
-      },
+                )),
     );
 
-    Widget printButton = Card(
+    @override
+    Widget chooseBottomLayer = Card(
+      shadowColor: Theme.of(context).shadowColor,
+      elevation: 4,
+      margin: const EdgeInsets.all(5),
+      child: Container(
+          margin: const EdgeInsets.all(5),
+          child: loading
+              ? const SizedBox(
+                  height: 25.0,
+                  width: 1,
+                  child: LinearProgressIndicator(),
+                )
+              : DropdownButton<String>(
+                  icon: const Icon(Icons.arrow_drop_down_sharp),
+                  isExpanded: true,
+                  alignment: AlignmentDirectional.center,
+                  hint: globalvar.locked
+                      ? const Text('Motif is locked')
+                      : const Text('Select layer'),
+                  value: globalvar.selectedBottomlayer,
+                  items: leaveRequest.map((item) {
+                    return DropdownMenuItem(
+                      enabled: !globalvar.locked,
+                      alignment: AlignmentDirectional.centerStart,
+                      value: item.value,
+                      child: Text(item.value),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    setState(() {
+                      globalvar.locked
+                          ? null
+                          : globalvar.selectedBottomlayer = val;
+                      globalvar.locked
+                          ? null
+                          : imageUrl = Uri.parse(
+                              "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+                    });
+                    globalvar.doPostRender(
+                        "/render",
+                        globalvar.positivefotoresist.toString(),
+                        val.toString());
+                  },
+                )),
+    );
+
+    Widget uploadButton = Card(
         shadowColor: Theme.of(context).shadowColor,
         elevation: 4,
+        margin: const EdgeInsets.all(5),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(width: 8, height: 20),
-            ElevatedButton(
-                child: const Text(
-                  'Print motif',
-                  textScaleFactor: 1.5,
-                ),
-                onPressed: () {
-                  globalvar.doPostJason(
-                      "/print",
-                      (_x * 6.4).toString(),
-                      (_y * 6.4).toString(),
-                      globalvar.ispositive.toString(),
-                      globalvar.ismirror.toString(),
-                      globalvar.exptime,
-                      "0",
-                      globalvar.selectedlayer.toString());
-                  // print('upload pressed');
-                }),
+            Container(
+                margin: const EdgeInsets.all(5),
+                child: ElevatedButton(
+                    child: const Text(
+                      'Upload Gerber',
+                      textScaleFactor: 1.5,
+                    ),
+                    onPressed: () {
+                      _pickFile();
+                    })),
+          ],
+        ));
+
+    Widget switchDoubleside = Card(
+        shadowColor: Theme.of(context).shadowColor,
+        elevation: 4,
+        margin: const EdgeInsets.all(5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              margin: const EdgeInsets.all(5),
+              child: ToggleSwitch(
+                minWidth: 400.0,
+                cornerRadius: 20.0,
+                activeBgColors: [
+                  [Colors.orange!],
+                  [Colors.orange!]
+                ],
+                activeFgColor: Colors.white,
+                inactiveBgColor: Colors.grey,
+                inactiveFgColor: Colors.white,
+                initialLabelIndex: globalvar.topbottom,
+                totalSwitches: 2,
+                labels: const ['Top', 'Bottom'],
+                radiusStyle: true,
+                onToggle: (index) {
+                  setState(() {
+                    globalvar.topbottom = index!;
+                  });
+                },
+              ),
+            ),
           ],
         ));
 
@@ -335,14 +388,15 @@ class _ControlWidget extends State<ControlWidget> {
         //maximum width set to 100% of width
       ),
       child: ListView(
+        padding: const EdgeInsets.all(5),
         children: [
           previewWindow,
           controlSection,
-          chooseLayer,
-          switchPhotoresist,
-          clearuploadButton,
-          serverIPTextField,
-          printButton,
+          switchDoubleside,
+          globalvar.topbottom == 1 ? chooseBottomLayer : chooseTopLayer,
+          //switchPhotoresist,
+          uploadButton,
+          //printButton,
         ],
       ),
     );

@@ -43,6 +43,13 @@ dependencies:
   measured_size: ^1.0.0
   lan_scanner: ^3.5.0
   network_info_plus: ^3.0.2
+  get_storage: ^2.1.1
+  window_size:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding
+      path: plugins/window_size
+  duration_picker: ^1.1.1
+  toggle_switch: ^2.0.1
 
 dev_dependencies:
   flutter_test:

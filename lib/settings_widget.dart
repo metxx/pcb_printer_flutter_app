@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:lan_scanner/lan_scanner.dart';
 import 'dart:io';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:duration_picker/duration_picker.dart';
 
 class SettingsWidget extends StatefulWidget {
   const SettingsWidget({super.key});
@@ -18,6 +19,11 @@ class SettingsWidget extends StatefulWidget {
 
 class _SettingsWidget extends State<SettingsWidget> {
   late TextEditingController _controller;
+
+  Duration _duration = Duration(seconds: globalvar.exptime);
+
+  Uri imageUrl = Uri.parse(
+      "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
 
   final List<HostModel> _hosts = <HostModel>[];
 
@@ -97,10 +103,11 @@ class _SettingsWidget extends State<SettingsWidget> {
         ),
       ),
     );
+
     Widget serverIPTextField = TextField(
       controller: _controller,
       decoration: InputDecoration(
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         labelText: 'Current server IP: ${globalvar.serverip}',
       ),
       onSubmitted: (String value) async {
@@ -128,35 +135,84 @@ class _SettingsWidget extends State<SettingsWidget> {
       },
     );
 
-    return ListView(
-      children: [serverIPTextField, lanscaner],
+    Widget switchPhotoresist = SwitchListTile(
+      title: const Text('Positive fotoresist'),
+      value: globalvar.positivefotoresist,
+      onChanged: (bool value) {
+        setState(() {
+          globalvar.positivefotoresist = value;
+          globalvar.doPostRender(
+              "/render",
+              globalvar.positivefotoresist.toString(),
+              globalvar.selectedToplayer.toString());
+          imageUrl = Uri.parse(
+              "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+        });
+      },
+      secondary: const Icon(Icons.invert_colors),
     );
-  }
-}
 
-void doPostparam(var path, var params) async {
-  var url = Uri.http(globalvar.serverip, '/api/control/' + path, params);
-  try {
-    var response = await http.post(url);
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-    print('$url');
-  } catch (e) {
-    print(e);
-    print('URL: $url'); // prompt error to user
-  }
-}
+    Widget printButton = Card(
+        shadowColor: Theme.of(context).shadowColor,
+        elevation: 4,
+        margin: const EdgeInsets.all(5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+                margin: EdgeInsets.all(5),
+                child: ElevatedButton(
+                    child: const Text(
+                      'Print motif',
+                      textScaleFactor: 1.5,
+                    ),
+                    onPressed: () {
+                      globalvar.doPostJason(
+                          "/print",
+                          (globalvar.movex * 6.4).toString(),
+                          (globalvar.movey * 6.4).toString(),
+                          globalvar.ispositive.toString(),
+                          globalvar.ismirror.toString(),
+                          globalvar.exptime.toString(),
+                          "0",
+                          globalvar.selectedToplayer.toString());
+                      // print('upload pressed');
+                    })),
+          ],
+        ));
 
-void doPost(var path) async {
-  var url = Uri.http(globalvar.serverip, '/api/control/' + path);
-  try {
-    var response = await http.post(url);
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-    print('$url');
-  } catch (e) {
-    print(e);
-    print('URL: $url'); // prompt error to user
+    Widget pickTime = Card(
+        shadowColor: Theme.of(context).shadowColor,
+        elevation: 4,
+        margin: const EdgeInsets.all(5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+                margin: EdgeInsets.all(5),
+                child: DurationPicker(
+                  baseUnit: BaseUnit.second,
+                  duration: _duration,
+                  onChange: (val) {
+                    setState(() => _duration = val);
+                    globalvar.exptime = _duration.inSeconds;
+                  },
+                  snapToMins: 5.0,
+                )),
+          ],
+        ));
+
+    return ListView(
+      padding: const EdgeInsets.all(5),
+      children: [
+        pickTime,
+        printButton,
+        switchPhotoresist,
+        // printTimetextfield,
+        serverIPTextField,
+        lanscaner
+      ],
+    );
   }
 }
 
