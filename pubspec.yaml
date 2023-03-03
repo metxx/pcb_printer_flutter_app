@@ -50,6 +50,7 @@ dependencies:
       path: plugins/window_size
   duration_picker: ^1.1.1
   toggle_switch: ^2.0.1
+  invert_colors: ^0.0.4
 
 dev_dependencies:
   flutter_test:

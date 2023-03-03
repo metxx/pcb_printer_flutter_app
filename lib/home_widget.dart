@@ -13,7 +13,10 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-  final List<Widget> _children = [const ControlWidget(), SettingsWidget()];
+  final List<Widget> _children = [
+    const ControlWidget(),
+    const SettingsWidget()
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +36,9 @@ class _HomeState extends State<Home> {
             ),
             label: 'Control',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(
-          //     Icons.print_rounded,
-          //     color: Colors.deepOrange,
-          //   ),
-          //   label: 'Print',
-          // ),
           BottomNavigationBarItem(
               icon: Icon(
-                Icons.settings_accessibility_rounded,
+                Icons.settings_applications_rounded,
                 color: Colors.green,
               ),
               label: 'Settings')

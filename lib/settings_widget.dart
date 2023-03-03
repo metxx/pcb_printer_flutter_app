@@ -22,14 +22,19 @@ class _SettingsWidget extends State<SettingsWidget> {
 
   Duration _duration = Duration(seconds: globalvar.exptime);
 
-  Uri imageUrl = Uri.parse(
-      "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+  // Uri imageUrl_top = Uri.parse(
+  //     "${globalvar.serverip}/serve_layer_for_preview_top?v=${DateTime.now().millisecondsSinceEpoch}");
+
+  // Uri imageUrl_bottom = Uri.parse(
+  //     "${globalvar.serverip}/serve_layer_for_preview_bottom?v=${DateTime.now().millisecondsSinceEpoch}");
 
   final List<HostModel> _hosts = <HostModel>[];
 
   double progress = 0.0;
 
-  late SnackBar snackBar;
+  //late SnackBar snackBar;
+
+  final snackBar = const SnackBar(content: Text('Layers not Locked!'));
 
   @override
   void initState() {
@@ -135,18 +140,35 @@ class _SettingsWidget extends State<SettingsWidget> {
       },
     );
 
+    // Widget switchPhotoresist = SwitchListTile(
+    //   title: const Text('Positive fotoresist'),
+    //   value: globalvar.positivefotoresist,
+    //   onChanged: (bool value) {
+    //     setState(() {
+    //       globalvar.positivefotoresist = value;
+    //       globalvar.doPostRender(
+    //           "/render",
+    //           globalvar.positivefotoresist.toString(),
+    //           globalvar.selectedToplayer.toString());
+    //       globalvar.doPostRender(
+    //           "/render",
+    //           globalvar.positivefotoresist.toString(),
+    //           globalvar.selectedBottomlayer.toString());
+    //       globalvar.imageUrl_bottom = Uri.parse(
+    //           "${globalvar.serverip}/serve_layer_for_preview_bottom?v=${DateTime.now().millisecondsSinceEpoch}");
+    //       globalvar.imageUrl_top = Uri.parse(
+    //           "${globalvar.serverip}/serve_layer_for_preview_top?v=${DateTime.now().millisecondsSinceEpoch}");
+    //     });
+    //   },
+    //   secondary: const Icon(Icons.invert_colors),
+    // );
+
     Widget switchPhotoresist = SwitchListTile(
       title: const Text('Positive fotoresist'),
       value: globalvar.positivefotoresist,
       onChanged: (bool value) {
         setState(() {
           globalvar.positivefotoresist = value;
-          globalvar.doPostRender(
-              "/render",
-              globalvar.positivefotoresist.toString(),
-              globalvar.selectedToplayer.toString());
-          imageUrl = Uri.parse(
-              "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
         });
       },
       secondary: const Icon(Icons.invert_colors),
@@ -160,22 +182,47 @@ class _SettingsWidget extends State<SettingsWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-                margin: EdgeInsets.all(5),
+                margin: const EdgeInsets.all(10),
                 child: ElevatedButton(
                     child: const Text(
-                      'Print motif',
+                      'Print TopLayer',
                       textScaleFactor: 1.5,
                     ),
                     onPressed: () {
-                      globalvar.doPostJason(
-                          "/print",
-                          (globalvar.movex * 6.4).toString(),
-                          (globalvar.movey * 6.4).toString(),
-                          globalvar.ispositive.toString(),
-                          globalvar.ismirror.toString(),
-                          globalvar.exptime.toString(),
-                          "0",
-                          globalvar.selectedToplayer.toString());
+                      !globalvar.locked
+                          ? ScaffoldMessenger.of(context).showSnackBar(snackBar)
+                          : globalvar.doPostJason(
+                              "/print",
+                              (globalvar.movex * 6.4).toString(),
+                              (globalvar.movey * 6.4).toString(),
+                              globalvar.positivefotoresist.toString(),
+                              globalvar.ismirror.toString(),
+                              globalvar.exptime.toString(),
+                              "0",
+                              globalvar.selectedToplayer.toString(),
+                              "top");
+                      print('upload pressed');
+                    })),
+            Container(
+                margin: const EdgeInsets.all(10),
+                child: ElevatedButton(
+                    child: const Text(
+                      'Print BottomLayer',
+                      textScaleFactor: 1.5,
+                    ),
+                    onPressed: () {
+                      !globalvar.locked
+                          ? ScaffoldMessenger.of(context).showSnackBar(snackBar)
+                          : globalvar.doPostJason(
+                              "/print",
+                              (globalvar.movex * 6.4).toString(),
+                              (globalvar.movey * 6.4).toString(),
+                              globalvar.positivefotoresist.toString(),
+                              globalvar.ismirror.toString(),
+                              globalvar.exptime.toString(),
+                              "0",
+                              globalvar.selectedBottomlayer.toString(),
+                              "bottom");
                       // print('upload pressed');
                     })),
           ],

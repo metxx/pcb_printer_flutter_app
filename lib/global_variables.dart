@@ -37,7 +37,8 @@ Future<http.Response> doPostJason(
     String mirror,
     String exptime,
     String pwm,
-    String filename) {
+    String filename,
+    String toporbottom) {
   return http.post(
     Uri.parse(serverip + path),
     headers: <String, String>{
@@ -50,21 +51,21 @@ Future<http.Response> doPostJason(
       'mirror': mirror,
       'exp_time': exptime,
       'pwm': pwm,
-      'file_name': filename
+      'file_name': filename,
+      'topbottom': toporbottom
     }),
   );
 }
 
-Future<http.Response> doPostRender(
-    String path, String positive, String filename) {
+Future<http.Response> doPostRender(String path, String filename) {
   return http.post(
     Uri.parse(serverip + path),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: jsonEncode(<String, String>{
-      'positive': positive,
       'file_name': filename,
+      'topbottom': topbottom == 1 ? "top" : "bottom",
     }),
   );
 }

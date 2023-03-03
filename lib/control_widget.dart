@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
+
 import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:invert_colors/invert_colors.dart';
 
 class ControlWidget extends StatefulWidget {
   const ControlWidget({super.key});
@@ -17,8 +20,6 @@ class ControlWidget extends StatefulWidget {
 
 class _ControlWidget extends State<ControlWidget> {
   late TextEditingController _controller;
-  // double _x = 0;
-  // double _y = 0;
 
   // ignore: prefer_typing_uninitialized_variables
   var picked;
@@ -27,8 +28,11 @@ class _ControlWidget extends State<ControlWidget> {
   bool loading = true;
   List<ApiResponse> leaveRequest = [];
 
-  Uri imageUrl = Uri.parse(
-      "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+  Uri imageUrl_top = Uri.parse(
+      "${globalvar.serverip}/serve_layer_for_preview_top?v=${DateTime.now().millisecondsSinceEpoch}");
+
+  Uri imageUrl_bottom = Uri.parse(
+      "${globalvar.serverip}/serve_layer_for_preview_bottom?v=${DateTime.now().millisecondsSinceEpoch}");
 
   void get() async {
     var response = await http.get(
@@ -59,12 +63,12 @@ class _ControlWidget extends State<ControlWidget> {
     setState(() {
       loading = true;
       globalvar.selectedToplayer = null;
+      globalvar.selectedBottomlayer = null;
     });
     picked = await FilePicker.platform
         .pickFiles(allowMultiple: false, withData: true);
 
     if (picked != null) {
-      //print(picked.files.first.name);
       globalvar.doPostFile('/uploadfile', picked.files.first.path);
       setState(() {
         loading = false;
@@ -75,12 +79,31 @@ class _ControlWidget extends State<ControlWidget> {
 
   @override
   Widget build(BuildContext musimetoopravit) {
+    Widget imagetop = globalvar.positivefotoresist
+        ? InvertColors(
+            child: CachedNetworkImage(
+                imageUrl: imageUrl_top.toString(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator()))
+        : CachedNetworkImage(
+            imageUrl: imageUrl_top.toString(),
+            placeholder: (context, url) => const CircularProgressIndicator());
+
+    Widget imagebottom = globalvar.positivefotoresist
+        ? InvertColors(
+            child: CachedNetworkImage(
+                imageUrl: imageUrl_bottom.toString(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator()))
+        : CachedNetworkImage(
+            imageUrl: imageUrl_bottom.toString(),
+            placeholder: (context, url) => const CircularProgressIndicator());
+
     Widget controlSection = Card(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          //const SizedBox(height: 20),
           Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -153,81 +176,82 @@ class _ControlWidget extends State<ControlWidget> {
     );
 
     @override
-    Widget previewWindow = LayoutBuilder(builder: (context, constraints) {
-      return Center(
-        child: Stack(
-          children: [
-            Container(
-              height: 1080 / 3,
-              width: constraints.maxWidth,
-              color: globalvar.positivefotoresist ? Colors.white : Colors.black,
-              //padding: const EdgeInsets.all(35),
-              alignment: Alignment.center,
-              child: Transform.translate(
-                  offset: Offset(globalvar.movex, globalvar.movey),
-                  child: globalvar.selectedToplayer != null
-                      ? Image.network(imageUrl.toString())
-                      : Image.asset('images/calibration.png')),
+    Widget previewWindowTop = Card(
+      shadowColor: Theme.of(context).shadowColor,
+      elevation: 4,
+      margin: const EdgeInsets.all(5),
+      child: Stack(
+        children: [
+          Center(
+              child: ClipRect(
+                  child: Container(
+            constraints: const BoxConstraints(minWidth: 700, maxWidth: 1920),
+            color: globalvar.positivefotoresist ? Colors.white : Colors.black,
+            alignment: Alignment.center,
+            child: Transform.translate(
+                offset: Offset(globalvar.movex, globalvar.movey),
+                child: globalvar.selectedToplayer != null
+                    ? imagetop
+                    : Image.asset('images/calibration.png')),
+          ))),
+          Container(
+            alignment: Alignment.topCenter,
+            child: IconButton(
+              isSelected: globalvar.locked,
+              icon: globalvar.locked
+                  ? const Icon(Icons.lock)
+                  : const Icon(Icons.lock_open),
+              iconSize: 50,
+              color: globalvar.locked ? Colors.amber : Colors.amber,
+              onPressed: () {
+                setState(() {
+                  globalvar.locked = !globalvar.locked;
+                });
+              },
             ),
-            Container(
-                height: 1080 / 3,
-                width: constraints.maxWidth,
-                decoration: BoxDecoration(
-                  //color: Colors.black,
-                  // border: Border.all(width: 35, color: Colors.red)),
-                  border: BorderDirectional(
-                    start: BorderSide(
-                        color: Colors.red,
-                        width: ((constraints.maxWidth - (1920 / 3)) / 2) >= 0
-                            ? ((constraints.maxWidth - (1920 / 3)) / 2)
-                            : 0,
-                        style: BorderStyle.solid),
-                    top: BorderSide(
-                        color: Colors.red,
-                        width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
-                            ? (((1080 / 3) - constraints.maxWidth * (0.5625)) /
-                                2)
-                            : 0,
-                        style: BorderStyle.solid),
-                    bottom: BorderSide(
-                        color: Colors.red,
-                        width: ((constraints.maxWidth - (1920 / 3)) / 2) <= 0
-                            ? (((1080 / 3) - constraints.maxWidth * (0.5625)) /
-                                2)
-                            : 0,
-                        style: BorderStyle.solid),
-                    end: BorderSide(
-                        color: Colors.red,
-                        width: ((constraints.maxWidth - (1920 / 3)) / 2) >= 0
-                            ? ((constraints.maxWidth - (1920 / 3)) / 2)
-                            : 0,
-                        style: BorderStyle.solid),
-                  ),
-                )),
-            Container(
-              height: 1080 / 3,
-              width: constraints.maxWidth,
-              // padding: const EdgeInsets.all(35),
-              alignment: Alignment.topCenter,
-              child: IconButton(
-                isSelected: globalvar.locked,
-                icon: globalvar.locked
-                    ? const Icon(Icons.lock)
-                    : const Icon(Icons.lock_open),
-                iconSize: 50,
-                color: globalvar.locked ? Colors.amber : Colors.brown,
-                //tooltip: 'Move motif right',
-                onPressed: () {
-                  setState(() {
-                    globalvar.locked = !globalvar.locked;
-                  });
-                },
-              ),
+          ),
+        ],
+      ),
+    );
+
+    @override
+    Widget previewWindowBottom = Card(
+      shadowColor: Theme.of(context).shadowColor,
+      elevation: 4,
+      margin: const EdgeInsets.all(5),
+      child: Stack(
+        children: [
+          Center(
+              child: ClipRect(
+                  child: Container(
+            constraints: const BoxConstraints(minWidth: 700, maxWidth: 1920),
+            color: globalvar.positivefotoresist ? Colors.white : Colors.black,
+            alignment: Alignment.center,
+            child: Transform.translate(
+                offset: Offset(globalvar.movex, globalvar.movey),
+                child: globalvar.selectedBottomlayer != null
+                    ? imagebottom
+                    : Image.asset('images/calibration.png')),
+          ))),
+          Container(
+            alignment: Alignment.topCenter,
+            child: IconButton(
+              isSelected: globalvar.locked,
+              icon: globalvar.locked
+                  ? const Icon(Icons.lock)
+                  : const Icon(Icons.lock_open),
+              iconSize: 50,
+              color: globalvar.locked ? Colors.amber : Colors.amber,
+              onPressed: () {
+                setState(() {
+                  globalvar.locked = !globalvar.locked;
+                });
+              },
             ),
-          ],
-        ),
-      );
-    });
+          ),
+        ],
+      ),
+    );
 
     @override
     Widget chooseTopLayer = Card(
@@ -235,7 +259,7 @@ class _ControlWidget extends State<ControlWidget> {
       elevation: 4,
       margin: const EdgeInsets.all(5),
       child: Container(
-          margin: const EdgeInsets.all(5),
+          margin: const EdgeInsets.all(10),
           child: loading
               ? const SizedBox(
                   height: 25.0,
@@ -265,13 +289,10 @@ class _ControlWidget extends State<ControlWidget> {
                           : globalvar.selectedToplayer = val;
                       globalvar.locked
                           ? null
-                          : imageUrl = Uri.parse(
-                              "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+                          : imageUrl_top = Uri.parse(
+                              "${globalvar.serverip}/serve_layer_for_preview_top?v=${DateTime.now().millisecondsSinceEpoch}");
                     });
-                    globalvar.doPostRender(
-                        "/render",
-                        globalvar.positivefotoresist.toString(),
-                        val.toString());
+                    globalvar.doPostRender("/render", val.toString());
                   },
                 )),
     );
@@ -282,7 +303,7 @@ class _ControlWidget extends State<ControlWidget> {
       elevation: 4,
       margin: const EdgeInsets.all(5),
       child: Container(
-          margin: const EdgeInsets.all(5),
+          margin: const EdgeInsets.all(10),
           child: loading
               ? const SizedBox(
                   height: 25.0,
@@ -312,13 +333,10 @@ class _ControlWidget extends State<ControlWidget> {
                           : globalvar.selectedBottomlayer = val;
                       globalvar.locked
                           ? null
-                          : imageUrl = Uri.parse(
-                              "${globalvar.serverip}/serve_layer_for_preview?v=${DateTime.now().millisecondsSinceEpoch}");
+                          : imageUrl_bottom = Uri.parse(
+                              "${globalvar.serverip}/serve_layer_for_preview_bottom?v=${DateTime.now().millisecondsSinceEpoch}");
                     });
-                    globalvar.doPostRender(
-                        "/render",
-                        globalvar.positivefotoresist.toString(),
-                        val.toString());
+                    globalvar.doPostRender("/render", val.toString());
                   },
                 )),
     );
@@ -331,7 +349,7 @@ class _ControlWidget extends State<ControlWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-                margin: const EdgeInsets.all(5),
+                margin: const EdgeInsets.all(10),
                 child: ElevatedButton(
                     child: const Text(
                       'Upload Gerber',
@@ -351,13 +369,13 @@ class _ControlWidget extends State<ControlWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              margin: const EdgeInsets.all(5),
+              margin: const EdgeInsets.all(10),
               child: ToggleSwitch(
-                minWidth: 400.0,
+                minWidth: 700.0,
                 cornerRadius: 20.0,
-                activeBgColors: [
-                  [Colors.orange!],
-                  [Colors.orange!]
+                activeBgColors: const [
+                  [Colors.orange],
+                  [Colors.orange]
                 ],
                 activeFgColor: Colors.white,
                 inactiveBgColor: Colors.grey,
@@ -369,6 +387,10 @@ class _ControlWidget extends State<ControlWidget> {
                 onToggle: (index) {
                   setState(() {
                     globalvar.topbottom = index!;
+                    imageUrl_top = Uri.parse(
+                        "${globalvar.serverip}/serve_layer_for_preview_top?v=${DateTime.now().millisecondsSinceEpoch}");
+                    imageUrl_bottom = Uri.parse(
+                        "${globalvar.serverip}/serve_layer_for_preview_bottom?v=${DateTime.now().millisecondsSinceEpoch}");
                   });
                 },
               ),
@@ -390,13 +412,11 @@ class _ControlWidget extends State<ControlWidget> {
       child: ListView(
         padding: const EdgeInsets.all(5),
         children: [
-          previewWindow,
+          globalvar.topbottom == 1 ? previewWindowTop : previewWindowBottom,
           controlSection,
           switchDoubleside,
-          globalvar.topbottom == 1 ? chooseBottomLayer : chooseTopLayer,
-          //switchPhotoresist,
+          globalvar.topbottom == 1 ? chooseTopLayer : chooseBottomLayer,
           uploadButton,
-          //printButton,
         ],
       ),
     );
