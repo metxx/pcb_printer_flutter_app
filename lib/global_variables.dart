@@ -25,6 +25,7 @@ int exptime = 5;
 // List<bool> isSelected = [false];
 bool locked = false;
 int topbottom = 0;
+double currentSliderValue = 20;
 
 double movex = 0;
 double movey = 0;

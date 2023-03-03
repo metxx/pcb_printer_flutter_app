@@ -1,8 +1,5 @@
-import 'package:flutter/services.dart';
-
 import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:lan_scanner/lan_scanner.dart';
 import 'dart:io';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -21,12 +18,6 @@ class _SettingsWidget extends State<SettingsWidget> {
   late TextEditingController _controller;
 
   Duration _duration = Duration(seconds: globalvar.exptime);
-
-  // Uri imageUrl_top = Uri.parse(
-  //     "${globalvar.serverip}/serve_layer_for_preview_top?v=${DateTime.now().millisecondsSinceEpoch}");
-
-  // Uri imageUrl_bottom = Uri.parse(
-  //     "${globalvar.serverip}/serve_layer_for_preview_bottom?v=${DateTime.now().millisecondsSinceEpoch}");
 
   final List<HostModel> _hosts = <HostModel>[];
 
@@ -50,11 +41,20 @@ class _SettingsWidget extends State<SettingsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Widget lanscaner = SafeArea(
+    Widget lanscaner = Card(
+      shadowColor: Theme.of(context).shadowColor,
+      elevation: 4,
+      margin: const EdgeInsets.all(5),
       child: SingleChildScrollView(
         child: Column(
           children: [
-            LinearProgressIndicator(value: progress),
+            Container(
+              margin: const EdgeInsets.all(5),
+              child: const Text("Lan scanner"),
+            ),
+            Container(
+                margin: const EdgeInsets.all(5),
+                child: LinearProgressIndicator(value: progress)),
             ElevatedButton(
               onPressed: () {
                 setState(() {
@@ -109,70 +109,55 @@ class _SettingsWidget extends State<SettingsWidget> {
       ),
     );
 
-    Widget serverIPTextField = TextField(
-      controller: _controller,
-      decoration: InputDecoration(
-        border: const OutlineInputBorder(),
-        labelText: 'Current server IP: ${globalvar.serverip}',
-      ),
-      onSubmitted: (String value) async {
-        await showDialog<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Server IP adress'),
-              content: Text('You updated server IP adress to "$value"'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
+    Widget serverIPTextField = Card(
+        shadowColor: Theme.of(context).shadowColor,
+        elevation: 4,
+        margin: const EdgeInsets.all(5),
+        child: TextField(
+          controller: _controller,
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            labelText: 'Current server IP: ${globalvar.serverip}',
+          ),
+          onSubmitted: (String value) async {
+            await showDialog<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Server IP adress'),
+                  content: Text('You updated server IP adress to "$value"'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
             );
+            setState(() {
+              globalvar.serverip =
+                  globalvar.serverhttp + value + globalvar.serverport;
+            });
           },
-        );
-        setState(() {
-          globalvar.serverip =
-              globalvar.serverhttp + value + globalvar.serverport;
-        });
-      },
-    );
+        ));
 
-    // Widget switchPhotoresist = SwitchListTile(
-    //   title: const Text('Positive fotoresist'),
-    //   value: globalvar.positivefotoresist,
-    //   onChanged: (bool value) {
-    //     setState(() {
-    //       globalvar.positivefotoresist = value;
-    //       globalvar.doPostRender(
-    //           "/render",
-    //           globalvar.positivefotoresist.toString(),
-    //           globalvar.selectedToplayer.toString());
-    //       globalvar.doPostRender(
-    //           "/render",
-    //           globalvar.positivefotoresist.toString(),
-    //           globalvar.selectedBottomlayer.toString());
-    //       globalvar.imageUrl_bottom = Uri.parse(
-    //           "${globalvar.serverip}/serve_layer_for_preview_bottom?v=${DateTime.now().millisecondsSinceEpoch}");
-    //       globalvar.imageUrl_top = Uri.parse(
-    //           "${globalvar.serverip}/serve_layer_for_preview_top?v=${DateTime.now().millisecondsSinceEpoch}");
-    //     });
-    //   },
-    //   secondary: const Icon(Icons.invert_colors),
-    // );
-
-    Widget switchPhotoresist = SwitchListTile(
-      title: const Text('Positive fotoresist'),
-      value: globalvar.positivefotoresist,
-      onChanged: (bool value) {
-        setState(() {
-          globalvar.positivefotoresist = value;
-        });
-      },
-      secondary: const Icon(Icons.invert_colors),
-    );
+    Widget switchPhotoresist = Card(
+        shadowColor: Theme.of(context).shadowColor,
+        elevation: 4,
+        margin: const EdgeInsets.all(5),
+        child: SwitchListTile(
+          title: const Text('Positive fotoresist'),
+          value: globalvar.positivefotoresist,
+          onChanged: (bool value) {
+            setState(() {
+              globalvar.positivefotoresist = value;
+            });
+          },
+          secondary: const Icon(Icons.invert_colors),
+        ));
 
     Widget printButton = Card(
         shadowColor: Theme.of(context).shadowColor,
@@ -195,11 +180,11 @@ class _SettingsWidget extends State<SettingsWidget> {
                               "/print",
                               (globalvar.movex * 6.4).toString(),
                               (globalvar.movey * 6.4).toString(),
-                              globalvar.positivefotoresist.toString(),
+                              globalvar.positivefotoresist ? "True" : "False",
                               globalvar.ismirror.toString(),
                               globalvar.exptime.toString(),
-                              "0",
-                              globalvar.selectedToplayer.toString(),
+                              globalvar.currentSliderValue.toString(),
+                              globalvar.selectedBottomlayer.toString(),
                               "top");
                       print('upload pressed');
                     })),
@@ -217,11 +202,11 @@ class _SettingsWidget extends State<SettingsWidget> {
                               "/print",
                               (globalvar.movex * 6.4).toString(),
                               (globalvar.movey * 6.4).toString(),
-                              globalvar.positivefotoresist.toString(),
+                              globalvar.positivefotoresist ? "True" : "False",
                               globalvar.ismirror.toString(),
                               globalvar.exptime.toString(),
-                              "0",
-                              globalvar.selectedBottomlayer.toString(),
+                              globalvar.currentSliderValue.toString(),
+                              globalvar.selectedToplayer.toString(),
                               "bottom");
                       // print('upload pressed');
                     })),
@@ -236,7 +221,7 @@ class _SettingsWidget extends State<SettingsWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-                margin: EdgeInsets.all(5),
+                margin: const EdgeInsets.all(5),
                 child: DurationPicker(
                   baseUnit: BaseUnit.second,
                   duration: _duration,
@@ -249,13 +234,38 @@ class _SettingsWidget extends State<SettingsWidget> {
           ],
         ));
 
+    Widget pwmSlider = Card(
+        shadowColor: Theme.of(context).shadowColor,
+        elevation: 4,
+        margin: const EdgeInsets.all(5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+                child: Container(
+              margin: const EdgeInsets.all(5),
+              child: Slider(
+                value: globalvar.currentSliderValue,
+                max: 100,
+                divisions: 20,
+                label: globalvar.currentSliderValue.round().toString(),
+                onChanged: (double value) {
+                  setState(() {
+                    globalvar.currentSliderValue = value;
+                  });
+                },
+              ),
+            )),
+          ],
+        ));
+
     return ListView(
       padding: const EdgeInsets.all(5),
       children: [
         pickTime,
-        printButton,
+        pwmSlider,
         switchPhotoresist,
-        // printTimetextfield,
+        printButton,
         serverIPTextField,
         lanscaner
       ],
