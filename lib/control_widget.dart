@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:invert_colors/invert_colors.dart';
+import 'package:flutter/services.dart';
 
 class ControlWidget extends StatefulWidget {
   const ControlWidget({super.key});
@@ -21,7 +22,6 @@ class ControlWidget extends StatefulWidget {
 class _ControlWidget extends State<ControlWidget> {
   late TextEditingController _controller;
 
-  // ignore: prefer_typing_uninitialized_variables
   var picked;
 
   //String? value;
@@ -69,13 +69,27 @@ class _ControlWidget extends State<ControlWidget> {
         .pickFiles(allowMultiple: false, withData: true);
 
     if (picked != null) {
-      globalvar.doPostFile('/uploadfile', picked.files.first.path);
+      var windowsPath = picked.files.first.path;
+      print(windowsPath);
+      globalvar.doPostFile('/uploadfile', windowsPath);
       setState(() {
         loading = false;
       });
       initState();
+      //get();
     }
   }
+
+//     void _pickFile() async {
+//     FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+// if (result != null) {
+//   File file = File(result.files.single.path);
+// } else {
+//   // User canceled the picker
+// }
+//     }
+//   }
 
   @override
   Widget build(BuildContext musimetoopravit) {
@@ -357,6 +371,7 @@ class _ControlWidget extends State<ControlWidget> {
                     ),
                     onPressed: () {
                       _pickFile();
+                      //globalvar.doPostFile('/uploadfile', null);
                     })),
           ],
         ));

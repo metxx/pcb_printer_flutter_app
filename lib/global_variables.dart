@@ -8,6 +8,7 @@ import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
+import 'package:flutter/services.dart';
 
 Duration _duration = const Duration(seconds: 0);
 
@@ -88,6 +89,13 @@ void doPostFile(String path, var file) async {
 
   //print(response.headers);
 }
+
+// void doPostFile(String path, var file) async {
+//   var request = http.MultipartRequest('POST', Uri.parse(serverip + path));
+//   request.files.add(await http.MultipartFile.fromPath('file',
+//       "C:/Users/met_xx/OneDrive/Soubory/KiCad/PCB_printer_exposure_tests/Gerbers/PCB_printer_exposure_tests-F_Cu.zip"));
+//   var res = await request.send();
+// }
 
 void doPost(var path) async {
   var url = Uri.parse(serverip + path);

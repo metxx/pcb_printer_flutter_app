@@ -14,7 +14,7 @@ void main() async {
     // setWindowMaxSize(const Size(800, 1024));
     Future<Null>.delayed(const Duration(seconds: 1), () {
       setWindowFrame(Rect.fromCenter(
-          center: const Offset(1000, 700), width: 700, height: 950));
+          center: const Offset(1000, 700), width: 700, height: 970));
     });
   }
   runApp(const App());

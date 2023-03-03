@@ -4,6 +4,7 @@ import 'package:lan_scanner/lan_scanner.dart';
 import 'dart:io';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:duration_picker/duration_picker.dart';
+import 'package:http/http.dart' as http;
 
 class SettingsWidget extends StatefulWidget {
   const SettingsWidget({super.key});
