@@ -5,10 +5,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'global_variables.dart' as globalvar;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:file_picker/file_picker.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:invert_colors/invert_colors.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
 
 class ControlWidget extends StatefulWidget {
   const ControlWidget({super.key});
@@ -79,17 +79,6 @@ class _ControlWidget extends State<ControlWidget> {
       //get();
     }
   }
-
-//     void _pickFile() async {
-//     FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-// if (result != null) {
-//   File file = File(result.files.single.path);
-// } else {
-//   // User canceled the picker
-// }
-//     }
-//   }
 
   @override
   Widget build(BuildContext musimetoopravit) {
