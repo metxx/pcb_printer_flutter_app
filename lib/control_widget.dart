@@ -9,6 +9,8 @@ import 'package:toggle_switch/toggle_switch.dart';
 import 'package:invert_colors/invert_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as p;
+import 'dart:io' show Platform;
 
 class ControlWidget extends StatefulWidget {
   const ControlWidget({super.key});
@@ -69,14 +71,20 @@ class _ControlWidget extends State<ControlWidget> {
         .pickFiles(allowMultiple: false, withData: true);
 
     if (picked != null) {
-      var windowsPath = picked.files.first.path;
-      print(windowsPath);
-      globalvar.doPostFile('/uploadfile', windowsPath);
+      String pathtofile = picked.files.first.path;
+      if (Platform.isWindows) {
+        var windowsPath = p.toUri(picked.files.first.path);
+        String substr = "file:///";
+        String replacement = "";
+        pathtofile = windowsPath.toString().replaceFirst(substr, replacement);
+        print(pathtofile);
+      }
+      globalvar.doPostFile('/uploadfile', pathtofile);
       setState(() {
         loading = false;
       });
-      initState();
-      //get();
+      //initState();
+      get();
     }
   }
 

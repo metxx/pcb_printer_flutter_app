@@ -72,30 +72,29 @@ Future<http.Response> doPostRender(String path, String filename) {
   );
 }
 
-void doPostFile(String path, var file) async {
-  http.MultipartRequest request =
-      http.MultipartRequest("POST", Uri.parse(serverip + path));
-
-  http.MultipartFile multipartFile =
-      await http.MultipartFile.fromPath('file', file);
-
-  request.files.add(multipartFile);
-
-  // var streamedResponse = await request.send();
-  // var response = await http.Response.fromStream(streamedResponse);
-  //print(response.body);
-  // items = List<String>.from(jsonDecode(response.body));
-  // print(items);
-
-  //print(response.headers);
-}
-
 // void doPostFile(String path, var file) async {
-//   var request = http.MultipartRequest('POST', Uri.parse(serverip + path));
-//   request.files.add(await http.MultipartFile.fromPath('file',
-//       "C:/Users/met_xx/OneDrive/Soubory/KiCad/PCB_printer_exposure_tests/Gerbers/PCB_printer_exposure_tests-F_Cu.zip"));
-//   var res = await request.send();
+//   http.MultipartRequest request =
+//       http.MultipartRequest("POST", Uri.parse(serverip + path));
+
+//   http.MultipartFile multipartFile =
+//       await http.MultipartFile.fromPath('file', file);
+
+//   request.files.add(multipartFile);
+
+//   // var streamedResponse = await request.send();
+//   // var response = await http.Response.fromStream(streamedResponse);
+//   //print(response.body);
+//   // items = List<String>.from(jsonDecode(response.body));
+//   // print(items);
+
+//   //print(response.headers);
 // }
+
+void doPostFile(String path, String file) async {
+  var request = http.MultipartRequest('POST', Uri.parse(serverip + path));
+  request.files.add(await http.MultipartFile.fromPath('file', file));
+  var res = await request.send();
+}
 
 void doPost(var path) async {
   var url = Uri.parse(serverip + path);
