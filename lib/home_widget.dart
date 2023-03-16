@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'control_widget.dart';
 import 'settings_widget.dart';
+import 'global_variables.dart' as globalvar;
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -22,7 +23,10 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PCB Printer'),
+        title: const Text(
+          'PCB Printer',
+          style: TextStyle(color: Colors.orange),
+        ),
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

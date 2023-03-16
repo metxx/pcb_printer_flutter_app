@@ -8,25 +8,34 @@ import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
+import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 
 Duration _duration = const Duration(seconds: 0);
 
+final box = GetStorage();
+
 String serverhttp = 'http://';
 String serverport = ':8000';
-String inputserverip = '192.168.137.3';
+//String inputserverip = box.read('ip') == Null ? '0.0.0.0' : box.read('ip');
+String inputserverip = (box.read('ip') != null) ? box.read('ip') : '0.0.0.0';
 String serverip = serverhttp + inputserverip + serverport;
 int scale = 1;
 bool ispositive = false;
 bool ismirror = true;
 String? selectedToplayer;
 String? selectedBottomlayer;
-bool positivefotoresist = false;
-int exptime = 5;
+// bool positivefotoresist = false;
+int exptime = (box.read('exptime') != null) ? box.read('exptime') : 0;
 // List<bool> isSelected = [false];
 bool locked = false;
 int topbottom = 0;
-double currentSliderValue = 20;
+//double currentSliderValue = 20;
+
+double currentSliderValue = (box.read('pwm') != null) ? box.read('pwm') : 0;
+
+bool positivefotoresist =
+    (box.read('positive') != null) ? box.read('positive') : false;
 
 double movex = 0;
 double movey = 0;
@@ -51,10 +60,11 @@ Future<http.Response> doPostJason(
       'move_y': movey,
       'positive': positive,
       'mirror': mirror,
-      'exp_time': exptime,
+      'exp_time': box.read('exptime').toString(),
       'pwm': pwm,
       'file_name': filename,
-      'topbottom': toporbottom
+      'topbottom': toporbottom,
+      'scale': box.read('scale')
     }),
   );
 }
@@ -68,6 +78,7 @@ Future<http.Response> doPostRender(String path, String filename) {
     body: jsonEncode(<String, String>{
       'file_name': filename,
       'topbottom': topbottom == 1 ? "top" : "bottom",
+      'scale': box.read('scale')
     }),
   );
 }
@@ -107,4 +118,9 @@ void doPost(var path) async {
     print(e);
     print('URL: $url'); // prompt error to user
   }
+}
+
+class Controller extends GetxController {
+  final box = GetStorage();
+  void changeServeraddres(bool val) => box.write('darkmode', val);
 }

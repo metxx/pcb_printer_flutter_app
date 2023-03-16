@@ -9,6 +9,7 @@ import 'package:toggle_switch/toggle_switch.dart';
 import 'package:invert_colors/invert_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as p;
 import 'dart:io' show Platform;
 
@@ -57,10 +58,12 @@ class _ControlWidget extends State<ControlWidget> {
   @override
   void initState() {
     _controller = TextEditingController();
+    leaveRequest.clear();
     get();
     super.initState();
   }
 
+  @override
   void _pickFile() async {
     setState(() {
       loading = true;
@@ -77,13 +80,14 @@ class _ControlWidget extends State<ControlWidget> {
         String substr = "file:///";
         String replacement = "";
         pathtofile = windowsPath.toString().replaceFirst(substr, replacement);
-        print(pathtofile);
+        //print(pathtofile);
       }
       globalvar.doPostFile('/uploadfile', pathtofile);
       setState(() {
         loading = false;
       });
       //initState();
+      leaveRequest.clear();
       get();
     }
   }
@@ -389,7 +393,7 @@ class _ControlWidget extends State<ControlWidget> {
                   [Colors.orange],
                   [Colors.orange]
                 ],
-                activeFgColor: Colors.white,
+                activeFgColor: Colors.black,
                 inactiveBgColor: Colors.grey,
                 inactiveFgColor: Colors.white,
                 initialLabelIndex: globalvar.topbottom,
