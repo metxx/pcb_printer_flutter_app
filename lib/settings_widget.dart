@@ -21,7 +21,7 @@ class _SettingsWidget extends State<SettingsWidget> {
   late TextEditingController _controllerIP;
   late TextEditingController _controllerScale;
 
-  Duration _duration = Duration(seconds: globalvar.box.read('exptime'));
+  Duration _duration = Duration(minutes: globalvar.box.read('exptime'));
 
   final List<HostModel> _hosts = <HostModel>[];
 
@@ -59,12 +59,12 @@ class _SettingsWidget extends State<SettingsWidget> {
             Container(
                 margin: const EdgeInsets.all(5),
                 child: DurationPicker(
-                  baseUnit: BaseUnit.second,
+                  baseUnit: BaseUnit.minute,
                   duration: _duration,
                   onChange: (val) {
                     setState(() => _duration = val);
                     // globalvar.exptime = _duration.inSeconds;
-                    globalvar.box.write('exptime', _duration.inSeconds);
+                    globalvar.box.write('exptime', _duration.inMinutes);
                   },
                   snapToMins: 5.0,
                 )),
@@ -128,7 +128,7 @@ class _SettingsWidget extends State<SettingsWidget> {
                 margin: const EdgeInsets.all(10),
                 child: ElevatedButton(
                     child: const Text(
-                      'Print TopLayer',
+                      'Print Top',
                       textScaleFactor: 1.5,
                     ),
                     onPressed: () {
@@ -140,7 +140,6 @@ class _SettingsWidget extends State<SettingsWidget> {
                               (globalvar.movey * 6.4).toString(),
                               globalvar.box.read('positive') ? "True" : "False",
                               globalvar.ismirror.toString(),
-                              globalvar.exptime.toString(),
                               globalvar.currentSliderValue.toString(),
                               globalvar.selectedBottomlayer.toString(),
                               "top");
@@ -150,7 +149,7 @@ class _SettingsWidget extends State<SettingsWidget> {
                 margin: const EdgeInsets.all(10),
                 child: ElevatedButton(
                     child: const Text(
-                      'Print BottomLayer',
+                      'Print Bottom',
                       textScaleFactor: 1.5,
                     ),
                     onPressed: () {
@@ -162,7 +161,7 @@ class _SettingsWidget extends State<SettingsWidget> {
                               (globalvar.movey * 6.45).toString(),
                               globalvar.positivefotoresist ? "True" : "False",
                               globalvar.ismirror.toString(),
-                              globalvar.exptime.toString(),
+                              //globalvar.exptime.toString(),
                               globalvar.currentSliderValue.toString(),
                               globalvar.selectedToplayer.toString(),
                               "bottom");

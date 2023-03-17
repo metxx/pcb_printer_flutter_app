@@ -11,11 +11,6 @@ void main() async {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     setWindowTitle("My App");
     setWindowMinSize(const Size(500, 800));
-    // setWindowMaxSize(const Size(800, 1024));
-    // Future<Null>.delayed(const Duration(seconds: 1), () {
-    //   setWindowFrame(Rect.fromCenter(
-    //       center: const Offset(1000, 700), width: 700, height: 970));
-    // });
   }
   runApp(const App());
 }

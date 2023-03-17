@@ -17,7 +17,6 @@ final box = GetStorage();
 
 String serverhttp = 'http://';
 String serverport = ':8000';
-//String inputserverip = box.read('ip') == Null ? '0.0.0.0' : box.read('ip');
 String inputserverip = (box.read('ip') != null) ? box.read('ip') : '0.0.0.0';
 String serverip = serverhttp + inputserverip + serverport;
 int scale = 1;
@@ -25,12 +24,12 @@ bool ispositive = false;
 bool ismirror = true;
 String? selectedToplayer;
 String? selectedBottomlayer;
-// bool positivefotoresist = false;
+bool isPrinting = false;
+
 int exptime = (box.read('exptime') != null) ? box.read('exptime') : 0;
-// List<bool> isSelected = [false];
+
 bool locked = false;
 int topbottom = 0;
-//double currentSliderValue = 20;
 
 double currentSliderValue = (box.read('pwm') != null) ? box.read('pwm') : 0;
 
@@ -46,7 +45,7 @@ Future<http.Response> doPostJason(
     String movey,
     String positive,
     String mirror,
-    String exptime,
+    //String exptime,
     String pwm,
     String filename,
     String toporbottom) {
@@ -58,9 +57,9 @@ Future<http.Response> doPostJason(
     body: jsonEncode(<String, String>{
       'move_x': movex,
       'move_y': movey,
-      'positive': positive,
+      'positive': box.read('positive').toString(),
       'mirror': mirror,
-      'exp_time': box.read('exptime').toString(),
+      'exp_time': (box.read('exptime') * 60).toString(),
       'pwm': pwm,
       'file_name': filename,
       'topbottom': toporbottom,

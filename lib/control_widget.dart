@@ -94,7 +94,7 @@ class _ControlWidget extends State<ControlWidget> {
 
   @override
   Widget build(BuildContext musimetoopravit) {
-    Widget imagetop = globalvar.positivefotoresist
+    Widget imagetop = globalvar.box.read('positive')
         ? InvertColors(
             child: CachedNetworkImage(
                 imageUrl: imageUrl_top.toString(),
@@ -104,7 +104,7 @@ class _ControlWidget extends State<ControlWidget> {
             imageUrl: imageUrl_top.toString(),
             placeholder: (context, url) => const CircularProgressIndicator());
 
-    Widget imagebottom = globalvar.positivefotoresist
+    Widget imagebottom = globalvar.box.read('positive')
         ? InvertColors(
             child: CachedNetworkImage(
                 imageUrl: imageUrl_bottom.toString(),
@@ -201,7 +201,7 @@ class _ControlWidget extends State<ControlWidget> {
               child: ClipRect(
                   child: Container(
             constraints: const BoxConstraints(minWidth: 700, maxWidth: 1920),
-            color: globalvar.positivefotoresist ? Colors.white : Colors.black,
+            color: globalvar.box.read('positive') ? Colors.white : Colors.black,
             alignment: Alignment.center,
             child: Transform.translate(
                 offset: Offset(globalvar.movex, globalvar.movey),
@@ -240,7 +240,7 @@ class _ControlWidget extends State<ControlWidget> {
               child: ClipRect(
                   child: Container(
             constraints: const BoxConstraints(minWidth: 700, maxWidth: 1920),
-            color: globalvar.positivefotoresist ? Colors.white : Colors.black,
+            color: globalvar.box.read('positive') ? Colors.white : Colors.black,
             alignment: Alignment.center,
             child: Transform.translate(
                 offset: Offset(globalvar.movex, globalvar.movey),
