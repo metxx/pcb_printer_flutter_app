@@ -160,8 +160,7 @@ class _SettingsWidget extends State<SettingsWidget> {
                               (globalvar.movex * 6.45).toString(),
                               (globalvar.movey * 6.45).toString(),
                               globalvar.positivefotoresist ? "True" : "False",
-                              globalvar.ismirror.toString(),
-                              //globalvar.exptime.toString(),
+                              (!globalvar.ismirror).toString(),
                               globalvar.currentSliderValue.toString(),
                               globalvar.selectedToplayer.toString(),
                               "bottom");
