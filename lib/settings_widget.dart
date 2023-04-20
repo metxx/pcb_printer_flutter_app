@@ -21,7 +21,7 @@ class _SettingsWidget extends State<SettingsWidget> {
   late TextEditingController _controllerIP;
   late TextEditingController _controllerScale;
 
-  Duration _duration = Duration(minutes: globalvar.box.read('exptime'));
+  Duration _duration = Duration(seconds: globalvar.box.read('exptime') ?? 0);
 
   final List<HostModel> _hosts = <HostModel>[];
 
@@ -59,12 +59,12 @@ class _SettingsWidget extends State<SettingsWidget> {
             Container(
                 margin: const EdgeInsets.all(5),
                 child: DurationPicker(
-                  baseUnit: BaseUnit.minute,
+                  baseUnit: BaseUnit.second,
                   duration: _duration,
                   onChange: (val) {
                     setState(() => _duration = val);
                     // globalvar.exptime = _duration.inSeconds;
-                    globalvar.box.write('exptime', _duration.inMinutes);
+                    globalvar.box.write('exptime', _duration.inSeconds);
                   },
                   snapToMins: 5.0,
                 )),
@@ -87,10 +87,10 @@ class _SettingsWidget extends State<SettingsWidget> {
                 child: Container(
               margin: const EdgeInsets.all(5),
               child: Slider(
-                value: globalvar.currentSliderValue,
+                value: globalvar.currentSliderValue.toDouble(),
                 max: 100,
                 divisions: 20,
-                label: globalvar.currentSliderValue.round().toString(),
+                label: (globalvar.box.read('pwm') ?? 0.0).round().toString(),
                 onChanged: (double value) {
                   setState(() {
                     globalvar.box.write('pwm', value);
@@ -138,9 +138,11 @@ class _SettingsWidget extends State<SettingsWidget> {
                               "/print",
                               (globalvar.movex * 6.4).toString(),
                               (globalvar.movey * 6.4).toString(),
-                              globalvar.box.read('positive') ? "True" : "False",
+                              (globalvar.box.read('positive') ?? false)
+                                  ? "True"
+                                  : "False",
                               globalvar.ismirror.toString(),
-                              globalvar.currentSliderValue.toString(),
+                              (globalvar.box.read('pwm') ?? 0.0).toString(),
                               globalvar.selectedBottomlayer.toString(),
                               "top");
                       print('upload pressed');
@@ -161,7 +163,7 @@ class _SettingsWidget extends State<SettingsWidget> {
                               (globalvar.movey * 6.45).toString(),
                               globalvar.positivefotoresist ? "True" : "False",
                               (!globalvar.ismirror).toString(),
-                              globalvar.currentSliderValue.toString(),
+                              (globalvar.box.read('pwm') ?? 0.0).toString(),
                               globalvar.selectedToplayer.toString(),
                               "bottom");
                       // print('upload pressed');
@@ -219,7 +221,7 @@ class _SettingsWidget extends State<SettingsWidget> {
                 setState(() {
                   globalvar.box.write('ip', value);
                   globalvar.serverip = globalvar.serverhttp +
-                      globalvar.box.read('ip') +
+                      (globalvar.box.read('ip') ?? 'n/a') +
                       globalvar.serverport;
                 });
               },
@@ -245,7 +247,7 @@ class _SettingsWidget extends State<SettingsWidget> {
                       border: const OutlineInputBorder(),
                       // labelText: 'Current server IP: ${globalvar.serverip}',
                       labelText:
-                          'Current display scale value: ${globalvar.box.read('scale') ?? "n/a"}',
+                          'Current display scale value: ${(globalvar.box.read('scale') ?? 0) ?? "n/a"}',
                     ),
                     onSubmitted: (String value) async {
                       await showDialog<void>(
@@ -268,7 +270,7 @@ class _SettingsWidget extends State<SettingsWidget> {
                       );
                       setState(() {
                         globalvar.box.write('scale', value);
-                        globalvar.scale = globalvar.box.read('scale');
+                        globalvar.scale = globalvar.box.read('scale') ?? 0;
                       });
                     },
                   )))

@@ -26,12 +26,15 @@ String? selectedToplayer;
 String? selectedBottomlayer;
 bool isPrinting = false;
 
-int exptime = (box.read('exptime') != null) ? box.read('exptime') : 0;
+//int exptime = (box.read('exptime') != null) ? box.read('exptime') : 0;
 
 bool locked = false;
 int topbottom = 0;
 
-double currentSliderValue = (box.read('pwm') != null) ? box.read('pwm') : 0;
+bool connection_to_server = false;
+
+var preSliderValue = box.read('pwm') ?? 0;
+double currentSliderValue = preSliderValue.toDouble();
 
 bool positivefotoresist =
     (box.read('positive') != null) ? box.read('positive') : false;
@@ -59,7 +62,7 @@ Future<http.Response> doPostJason(
       'move_y': movey,
       'positive': box.read('positive').toString(),
       'mirror': mirror,
-      'exp_time': (box.read('exptime') * 60).toString(),
+      'exp_time': box.read('exptime').toString(),
       'pwm': pwm,
       'file_name': filename,
       'topbottom': toporbottom,
@@ -77,7 +80,7 @@ Future<http.Response> doPostRender(String path, String filename) {
     body: jsonEncode(<String, String>{
       'file_name': filename,
       'topbottom': topbottom == 1 ? "top" : "bottom",
-      'scale': box.read('scale')
+      'scale': box.read('scale') ?? 1.toString()
     }),
   );
 }

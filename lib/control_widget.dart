@@ -11,7 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as p;
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, SocketException;
 
 class ControlWidget extends StatefulWidget {
   const ControlWidget({super.key});
@@ -37,6 +37,32 @@ class _ControlWidget extends State<ControlWidget> {
   Uri imageUrl_bottom = Uri.parse(
       "${globalvar.serverip}/serve_layer_for_preview_bottom?v=${DateTime.now().millisecondsSinceEpoch}");
 
+  Future<void> performSocketOperation() async {
+    bool operationSucceeded = false;
+    do {
+      try {
+        var response =
+            await http.get(Uri.parse("${globalvar.serverip}/files_on_server"));
+        if (response.statusCode == 200) {
+          final jsonData = jsonDecode(response.body);
+          List<dynamic> data = jsonData["responseObj"];
+          for (dynamic d in data) {
+            leaveRequest.add(ApiResponse.fromJson(d));
+          }
+          setState(() {
+            loading = false;
+          });
+        }
+        operationSucceeded = true;
+      } on SocketException catch (e) {
+        await Future.delayed(const Duration(seconds: 2));
+      } catch (e) {
+        print('Exception occurred: $e');
+        break;
+      }
+    } while (!operationSucceeded);
+  }
+
   void get() async {
     var response = await http.get(
       Uri.parse("${globalvar.serverip}/files_on_server"),
@@ -59,7 +85,10 @@ class _ControlWidget extends State<ControlWidget> {
   void initState() {
     _controller = TextEditingController();
     leaveRequest.clear();
-    get();
+    performSocketOperation();
+    if (globalvar.connection_to_server) {
+      get();
+    }
     super.initState();
   }
 
@@ -75,18 +104,18 @@ class _ControlWidget extends State<ControlWidget> {
 
     if (picked != null) {
       String pathtofile = picked.files.first.path;
-      if (Platform.isWindows) {
-        var windowsPath = p.toUri(picked.files.first.path);
-        String substr = "file:///";
-        String replacement = "";
-        pathtofile = windowsPath.toString().replaceFirst(substr, replacement);
-        //print(pathtofile);
-      }
+      // print(pathtofile);
+      // if (Platform.isWindows) {
+      //   var windowsPath = p.toUri(picked.files.first.path);
+      //   String substr = "file:///";
+      //   String replacement = "";
+      //   pathtofile = windowsPath.toString().replaceFirst(substr, replacement);
+      //   print(pathtofile);
+      // }
       globalvar.doPostFile('/uploadfile', pathtofile);
       setState(() {
         loading = false;
       });
-      //initState();
       leaveRequest.clear();
       get();
     }
@@ -94,7 +123,7 @@ class _ControlWidget extends State<ControlWidget> {
 
   @override
   Widget build(BuildContext musimetoopravit) {
-    Widget imagetop = globalvar.box.read('positive')
+    Widget imagetop = globalvar.box.read('positive') ?? false
         ? InvertColors(
             child: CachedNetworkImage(
                 imageUrl: imageUrl_top.toString(),
@@ -104,7 +133,7 @@ class _ControlWidget extends State<ControlWidget> {
             imageUrl: imageUrl_top.toString(),
             placeholder: (context, url) => const CircularProgressIndicator());
 
-    Widget imagebottom = globalvar.box.read('positive')
+    Widget imagebottom = globalvar.box.read('positive') ?? false
         ? InvertColors(
             child: CachedNetworkImage(
                 imageUrl: imageUrl_bottom.toString(),
@@ -201,7 +230,9 @@ class _ControlWidget extends State<ControlWidget> {
               child: ClipRect(
                   child: Container(
             constraints: const BoxConstraints(minWidth: 700, maxWidth: 1920),
-            color: globalvar.box.read('positive') ? Colors.white : Colors.black,
+            color: (globalvar.box.read('positive') ?? false)
+                ? Colors.white
+                : Colors.black,
             alignment: Alignment.center,
             child: Transform.translate(
                 offset: Offset(globalvar.movex, globalvar.movey),
@@ -240,7 +271,9 @@ class _ControlWidget extends State<ControlWidget> {
               child: ClipRect(
                   child: Container(
             constraints: const BoxConstraints(minWidth: 700, maxWidth: 1920),
-            color: globalvar.box.read('positive') ? Colors.white : Colors.black,
+            color: (globalvar.box.read('positive') ?? false)
+                ? Colors.white
+                : Colors.black,
             alignment: Alignment.center,
             child: Transform.translate(
                 offset: Offset(globalvar.movex, globalvar.movey),
