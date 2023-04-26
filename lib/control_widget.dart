@@ -231,8 +231,8 @@ class _ControlWidget extends State<ControlWidget> {
                   child: Container(
             constraints: const BoxConstraints(minWidth: 700, maxWidth: 1920),
             color: (globalvar.box.read('positive') ?? false)
-                ? Colors.white
-                : Colors.black,
+                ? Colors.black
+                : Colors.white,
             alignment: Alignment.center,
             child: Transform.translate(
                 offset: Offset(globalvar.movex, globalvar.movey),
@@ -272,8 +272,8 @@ class _ControlWidget extends State<ControlWidget> {
                   child: Container(
             constraints: const BoxConstraints(minWidth: 700, maxWidth: 1920),
             color: (globalvar.box.read('positive') ?? false)
-                ? Colors.white
-                : Colors.black,
+                ? Colors.black
+                : Colors.white,
             alignment: Alignment.center,
             child: Transform.translate(
                 offset: Offset(globalvar.movex, globalvar.movey),
